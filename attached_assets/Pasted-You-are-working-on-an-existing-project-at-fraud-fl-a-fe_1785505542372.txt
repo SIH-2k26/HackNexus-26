@@ -1,0 +1,75 @@
+You are working on an existing project at fraud_fl/ — a federated learning fraud detection API (FastAPI + scikit-learn FedAvg, 4 simulated banks). The core FL loop, API, auth, and dashboard already work. Implement the following features to close gaps between the working build and the official project documentation.
+
+Existing files: generate_data.py, fl_core.py, api/main.py, dashboard.html. Do not break the existing /train, /status, /reset endpoints or the FedAvg core logic in fl_core.py — only extend them.
+
+TASK 1 — Fix /score endpoint schema (highest priority, do first)
+
+Current /score takes {"features": [10 floats]} and returns {"is_fraud": bool, "fraud_probability": float}.
+
+Change it to match the documented schema exactly:
+
+Request:
+
+json
+{
+  "amount": 15000,
+  "timestamp": "2025-01-15T14:23:00Z",
+  "sender_account_hash": "a3f9...",
+  "receiver_account_hash": "b7e2...",
+  "transaction_type": "UPI"
+}
+
+Response:
+
+json
+{
+  "risk_score": 0.87,
+  "risk_label": "HIGH",
+  "recommendation": "FLAG",
+  "reason": "Unusual velocity pattern detected"
+}
+
+Requirements:
+
+Derive risk_label from risk_score: LOW (<0.3), MEDIUM (0.3-0.7), HIGH (>0.7)
+recommendation is "FLAG" if risk_score > 0.5, else "ALLOW"
+reason should be a simple templated string based on which input feature(s) drove the score up (e.g. high amount, unfamiliar receiver hash) — doesn't need to be a real explainability model, a reasonable heuristic string is fine for demo
+Internally, convert the incoming fields into whatever numeric feature vector the existing model expects (you'll need a small feature-engineering function — e.g. hash the account strings to numeric buckets, extract hour-of-day from timestamp, one-hot or map transaction_type)
+Update dashboard.html's scoring form to send/receive this new schema
+TASK 2 — Differential privacy noise injection
+
+In fl_core.py, add a function add_dp_noise(weights, epsilon=1.0) that adds calibrated Gaussian noise to each client's weights before they're sent to average_weights(). Wire it into run_round() behind a parameter use_differential_privacy: bool = True.
+
+Use a simple Gaussian mechanism: noise scaled by 1/epsilon, added to each weight array via numpy.random.normal
+Expose epsilon as a query param on the /train endpoint so it's visible/ adjustable in the demo (e.g. /train?epsilon=1.0)
+Add a note in the API response showing whether DP was applied and at what epsilon, so this is visible in /status history too
+TASK 3 — Lightweight Secure Aggregation simulation
+
+Full cryptographic SecAgg is out of scope, but simulate the masking pattern described in the documentation for demo/educational purposes:
+
+Add mask_weights(weights) — generates a random mask R_i per client, computes M_i = W_i + R_i
+Add unmask_and_aggregate(masked_weights_list, masks_list, sample_counts) — demonstrates that Σ M_i - Σ R_i = Σ W_i (the masks cancel out on aggregation)
+This can run alongside the existing FedAvg call as an optional simulate_secure_aggregation: bool flag on /train — doesn't need to replace the real aggregation, just needs to visibly demonstrate the masking math for the demo (e.g. return the intermediate masked values in the response so it's inspectable)
+TASK 4 — Swap synthetic data for PaySim1
+Add a load_paysim.py script that reads a PaySim1 CSV (user will provide the file path), selects relevant numeric columns (amount, oldbalanceOrg, newbalanceOrig, oldbalanceDest, newbalanceDest, type one-hot encoded, isFraud as label), and splits it into the same data/bank_N.csv structure generate_data.py currently produces — so the rest of the pipeline (fl_core.py) needs zero changes
+Keep generate_data.py as a fallback/demo-speed option; don't delete it
+TASK 5 — Per-bank API keys (replace single shared demo key)
+Add a POST /register endpoint: takes a bank_name, generates and returns a unique API key (simple UUID or secrets.token_hex), stores it in an in-memory dict {key: bank_name}
+Update verify_api_key to check against this dict instead of one hardcoded key
+Keep the existing FRAUD_API_KEY env var as a permanent "admin" key that always works, for backward compatibility with the dashboard
+TASK 6 — Basic audit trail
+Every time /train runs, append a record to a simple JSON-lines file audit_log.jsonl: {timestamp, round, participating_banks, global_metrics}
+Add a GET /audit endpoint (no auth needed, read-only) that returns the last 20 entries — this is your "immutable compliance trail" demo point
+Priority order if time-constrained
+
+Do tasks in this order — each is independently useful, stop wherever time runs out:
+
+Task 1 (schema fix) — judges will directly compare doc vs live API
+Task 2 (differential privacy) — best credibility-per-line-of-code
+Task 4 (PaySim1) — strengthens every reported number
+Task 6 (audit trail) — quick, matches a named doc feature
+Task 5 (per-bank keys) — nice-to-have, not demo-critical
+Task 3 (SecAgg simulation) — most complex, lowest marginal value if time is short
+After implementing
+
+Re-run the existing test flow: reset → train 8 rounds → score a transaction (new schema) → check /status and /audit. Confirm nothing in the original FedAvg loop or auth broke.
