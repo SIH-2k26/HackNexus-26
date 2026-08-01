@@ -15,14 +15,14 @@ interface SystemConfig {
 export default function Settings() {
   const { toast } = useToast();
   const [config, setConfig] = useState<SystemConfig>(() => {
-    const saved = localStorage.getItem('fedguard-config');
+    const saved = localStorage.getItem('vaultic-config');
     return saved
       ? JSON.parse(saved)
       : { mode: 'simulation', backendUrl: '', apiKey: '' };
   });
 
   const handleSave = () => {
-    localStorage.setItem('fedguard-config', JSON.stringify(config));
+    localStorage.setItem('vaultic-config', JSON.stringify(config));
     toast({
       title: 'Configuration saved',
       description: 'System configuration has been updated successfully.',

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vaultic — Operator Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #080c14;
+      --surface:   #0f1623;
+      --card:      #141d2e;
+      --card-hi:   #1a2540;
+      --border:    #1e2d45;
+      --border-hi: #2a3f5f;
+      --blue:      #3b82f6;
+      --blue-dim:  #1d4ed8;
+      --green:     #10b981;
+      --red:       #ef4444;
+      --yellow:    #f59e0b;
+      --purple:    #8b5cf6;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --sub:       #94a3b8;
+      --mono:      'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: 0.6rem; }
+    .logo-icon { font-size: 1.4rem; }
+    .logo-text { font-size: 1.1rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+    .logo-role { font-size: 0.7rem; font-weight: 500; color: var(--blue); text-transform: uppercase; letter-spacing: 0.1em; display: block; }
+    .header-right { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+    .pill {
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.3rem 0.6rem; font-size: 0.75rem; color: var(--sub);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .pill input { background: transparent; border: none; color: var(--text); font-size: 0.75rem; outline: none; min-width: 0; }
+    .pill input[type="text"] { width: 130px; }
+    .pill input[type="number"] { width: 48px; }
+    .pill label { color: var(--muted); white-space: nowrap; }
+    .pill-check { display: flex; align-items: center; gap: 0.35rem; cursor: pointer; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+      box-shadow: 0 0 6px var(--green); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    #serverStatus { font-size: 0.7rem; color: var(--muted); }
+
+    /* ── BUTTONS ─────────────────────────────────────────────────── */
+    .btn {
+      padding: 0.4rem 0.9rem; border: none; border-radius: 7px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap;
+    }
+    .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-danger  { background: var(--red);  color: #fff; }
+    .btn-ghost   { background: var(--card-hi); color: var(--sub); border: 1px solid var(--border); }
+    .btn-yellow  { background: var(--yellow); color: #000; }
+    .btn-sm { padding: 0.25rem 0.6rem; font-size: 0.72rem; }
+
+    /* ── LAYOUT ─────────────────────────────────────────────────── */
+    .page { display: grid; grid-template-columns: 1fr 340px; gap: 0; min-height: calc(100vh - 53px); }
+    .main-col  { padding: 1.5rem 1.5rem 1.5rem 2rem; display: flex; flex-direction: column; gap: 1.25rem; border-right: 1px solid var(--border); }
+    .side-col  { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+    /* ── CARDS ──────────────────────────────────────────────────── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem;
+    }
+    .card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+    }
+    .card-actions { display: flex; gap: 0.4rem; }
+
+    /* ── NETWORK OVERVIEW ───────────────────────────────────────── */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+    .kpi {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.9rem 1rem;
+    }
+    .kpi-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.3rem; }
+    .kpi-value { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+    .kpi-sub   { font-size: 0.68rem; color: var(--sub); margin-top: 0.2rem; }
+    .kpi-value.green  { color: var(--green); }
+    .kpi-value.blue   { color: var(--blue); }
+    .kpi-value.yellow { color: var(--yellow); }
+    .kpi-value.purple { color: var(--purple); }
+
+    /* ── VAULT GRID ─────────────────────────────────────────────── */
+    .vault-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+    .vault-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem; text-align: center;
+      transition: border-color 0.2s;
+    }
+    .vault-card:hover { border-color: var(--border-hi); }
+    .vault-card h3 { font-size: 0.78rem; font-weight: 600; color: var(--blue); margin-bottom: 0.5rem; }
+    .vault-acc { font-size: 1.5rem; font-weight: 700; line-height: 1; margin-bottom: 0.15rem; }
+    .vault-sub { font-size: 0.68rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .contribution-bar-wrap { background: var(--border); border-radius: 4px; height: 4px; margin-top: 0.4rem; }
+    .contribution-bar { background: var(--blue); border-radius: 4px; height: 4px; transition: width 0.5s ease; }
+    .contribution-label { font-size: 0.65rem; color: var(--sub); margin-top: 0.2rem; }
+
+    /* ── CHART ──────────────────────────────────────────────────── */
+    .chart-wrap { position: relative; height: 160px; }
+
+    /* ── BANK REGISTRY TABLE ────────────────────────────────────── */
+    .registry-form { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; }
+    .registry-form input { flex: 1; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 0.4rem 0.7rem; border-radius: 7px; font-size: 0.8rem; outline: none; }
+    .registry-form input:focus { border-color: var(--blue); }
+    .reg-key-out { font-family: var(--mono); font-size: 0.68rem; color: var(--green);
+      word-break: break-all; margin-bottom: 0.6rem; min-height: 0; line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.65rem;
+      letter-spacing: 0.07em; padding: 0 0 0.5rem 0; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 0.55rem 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .status-badge {
+      display: inline-block; padding: 0.15rem 0.45rem; border-radius: 5px;
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+    }
+    .status-badge.active  { background: #052e16; color: var(--green); }
+    .status-badge.revoked { background: #450a0a; color: var(--red); }
+    .key-prefix { font-family: var(--mono); font-size: 0.7rem; color: var(--sub); }
+
+    /* ── AUDIT TABLE ─────────────────────────────────────────────── */
+    .audit-scroll { max-height: 220px; overflow-y: auto; }
+    .audit-scroll::-webkit-scrollbar { width: 4px; }
+    .audit-scroll::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+    .audit-row { display: grid; grid-template-columns: 80px 50px 1fr 80px; gap: 0.4rem;
+      align-items: center; padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.72rem; }
+    .audit-row:last-child { border-bottom: none; }
+    .audit-time { font-family: var(--mono); color: var(--muted); font-size: 0.68rem; }
+    .audit-round { color: var(--blue); font-weight: 600; }
+    .audit-trigger { color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .audit-acc { text-align: right; font-weight: 600; }
+    .audit-header { display: grid; grid-template-columns: 80px 50px 1fr 80px; gap: 0.4rem;
+      padding: 0 0 0.4rem 0; border-bottom: 1px solid var(--border); }
+    .audit-header span { font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.07em; color: var(--muted); }
+    .audit-header span:last-child { text-align: right; }
+
+    /* ── SCORE FORM ──────────────────────────────────────────────── */
+    .form-row { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.6rem; }
+    .form-row label { font-size: 0.7rem; color: var(--muted); }
+    .form-row input, .form-row select {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      padding: 0.4rem 0.6rem; border-radius: 7px; font-size: 0.8rem; outline: none; width: 100%;
+    }
+    .form-row input:focus, .form-row select:focus { border-color: var(--blue); }
+    .risk-result { display: none; margin-top: 0.75rem; padding: 0.9rem; border-radius: 8px; }
+    .risk-result.HIGH   { background: #450a0a22; border: 1px solid var(--red);   color: #fca5a5; }
+    .risk-result.MEDIUM { background: #451a0322; border: 1px solid var(--yellow); color: #fde68a; }
+    .risk-result.LOW    { background: #05231422; border: 1px solid var(--green);  color: #6ee7b7; }
+    .risk-top { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.4rem; }
+    .rec-badge { padding: 0.15rem 0.5rem; border-radius: 5px; font-size: 0.7rem; font-weight: 700; }
+    .rec-badge.FLAG  { background: var(--red); color: #fff; }
+    .rec-badge.ALLOW { background: var(--green); color: #fff; }
+    .risk-reason { font-size: 0.75rem; line-height: 1.5; opacity: 0.85; }
+
+    /* ── MISC ────────────────────────────────────────────────────── */
+    .empty-state { text-align: center; color: var(--muted); padding: 1.5rem; font-size: 0.78rem; }
+    .section-gap { margin-top: 0.6rem; }
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .main-col { border-right: none; border-bottom: 1px solid var(--border); }
+      .kpi-row, .vault-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── HEADER ─────────────────────────────────────────────── -->
+  <header>
+    <div class="logo">
+      <span class="logo-icon">🔒</span>
+      <div>
+        <div class="logo-text">Vaultic</div>
+        <span class="logo-role">Operator Dashboard</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- ① API Base URL -->
+      <div class="pill">
+        <span>🌐</span>
+        <input type="text" id="baseUrl" value="http://localhost:8000" placeholder="API URL">
+      </div>
+      <!-- ② API Key -->
+      <div class="pill">
+        <span>🔑</span>
+        <input type="text" id="apiKey" value="demo-key-12345" placeholder="Admin key">
+      </div>
+      <!-- ③ DP epsilon -->
+      <div class="pill">
+        <label>DP ε</label>
+        <input type="number" id="epsilon" value="1.0" step="0.1" min="0.1" max="10">
+      </div>
+      <!-- ④ SecAgg toggle -->
+      <div class="pill">
+        <label class="pill-check">
+          <input type="checkbox" id="secaggToggle"> SecAgg
+        </label>
+      </div>
+      <!-- ⑤ Wake server (Render cold-start) -->
+      <button class="btn btn-ghost btn-sm" id="wakeBtn" onclick="wakeServer()">☀️ Wake</button>
+      <!-- ⑥ Run round -->
+      <button class="btn btn-primary btn-sm" onclick="runTrainRound()">⚡ Run Round</button>
+      <!-- ⑦ Reset -->
+      <button class="btn btn-danger btn-sm" onclick="resetTrainer()">🔄 Reset</button>
+      <!-- Server liveness -->
+      <div style="display:flex;align-items:center;gap:0.4rem;">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="serverStatus">checking…</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <!-- ════════════ MAIN COLUMN ════════════ -->
+    <div class="main-col">
+
+      <!-- KPI row -->
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">Registered Banks</div>
+          <div class="kpi-value blue" id="kpiRegistered">—</div>
+          <div class="kpi-sub">network nodes</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Training Rounds</div>
+          <div class="kpi-value purple" id="kpiRounds">—</div>
+          <div class="kpi-sub">all-time</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Global Accuracy</div>
+          <div class="kpi-value green" id="kpiAcc">—</div>
+          <div class="kpi-sub">latest round</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Global F1</div>
+          <div class="kpi-value yellow" id="kpiF1">—</div>
+          <div class="kpi-sub">latest round</div>
+        </div>
+      </div>
+
+      <!-- ── Vault Network ── -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Simulated Bank Nodes — Local Model Accuracy &amp; Contribution Weight</span>
+        </div>
+        <div class="vault-grid">
+          <div class="vault-card" id="vc0">
+            <h3>Bank 0</h3>
+            <div class="vault-acc" id="b0-acc">—</div>
+            <div class="vault-sub">accuracy</div>
+            <div class="contribution-bar-wrap"><div class="contribution-bar" id="b0-bar" style="width:25%"></div></div>
+            <div class="contribution-label" id="b0-wt">—% of model</div>
+          </div>
+          <div class="vault-card" id="vc1">
+            <h3>Bank 1</h3>
+            <div class="vault-acc" id="b1-acc">—</div>
+            <div class="vault-sub">accuracy</div>
+            <div class="contribution-bar-wrap"><div class="contribution-bar" id="b1-bar" style="width:25%"></div></div>
+            <div class="contribution-label" id="b1-wt">—% of model</div>
+          </div>
+          <div class="vault-card" id="vc2">
+            <h3>Bank 2</h3>
+            <div class="vault-acc" id="b2-acc">—</div>
+            <div class="vault-sub">accuracy</div>
+            <div class="contribution-bar-wrap"><div class="contribution-bar" id="b2-bar" style="width:25%"></div></div>
+            <div class="contribution-label" id="b2-wt">—% of model</div>
+          </div>
+          <div class="vault-card" id="vc3">
+            <h3>Bank 3</h3>
+            <div class="vault-acc" id="b3-acc">—</div>
+            <div class="vault-sub">accuracy</div>
+            <div class="contribution-bar-wrap"><div class="contribution-bar" id="b3-bar" style="width:25%"></div></div>
+            <div class="contribution-label" id="b3-wt">—% of model</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Model Performance Chart ── -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Federated Model Evolution — FedAvg + Differential Privacy</span>
+          <span id="dpLabel" style="font-size:0.68rem;color:var(--muted);"></span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="metricsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- ── Bank Registry Table ── -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Bank Registry</span>
+          <button class="btn btn-ghost btn-sm" onclick="loadRegistry()">↻ Refresh</button>
+        </div>
+        <!-- Register new bank -->
+        <div class="registry-form">
+          <input type="text" id="newBankName" placeholder="Bank name, e.g. HDFC_Node_01">
+          <select id="newBankTier" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.6rem;border-radius:7px;font-size:0.78rem;outline:none;">
+            <option value="standard">Standard</option>
+            <option value="premium">Premium</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="registerBank()">+ Register</button>
+        </div>
+        <div class="reg-key-out" id="regOutput"></div>
+        <!-- Table -->
+        <div id="registryTableWrap">
+          <table id="registryTable">
+            <thead>
+              <tr>
+                <th>Bank Name</th>
+                <th>Tier</th>
+                <th>Joined</th>
+                <th>Last Active</th>
+                <th>Status</th>
+                <th>Key</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="registryBody">
+              <tr><td colspan="7"><div class="empty-state">No registered banks yet — register one above.</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Audit Log ── -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Compliance Audit Trail — audit_log.jsonl</span>
+          <button class="btn btn-ghost btn-sm" onclick="fetchAuditLogs()">↻ Refresh</button>
+        </div>
+        <div class="audit-header">
+          <span>Time (UTC)</span><span>Round</span><span>Triggered By</span><span>Accuracy</span>
+        </div>
+        <div class="audit-scroll" id="auditScroll">
+          <div class="empty-state">No audit entries yet — run a training round.</div>
+        </div>
+      </div>
+
+    </div><!-- /main-col -->
+
+    <!-- ════════════ SIDE COLUMN ════════════ -->
+    <div class="side-col">
+
+      <!-- ── Transaction Fraud Scorer ── -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Live Transaction Scorer</span>
+        </div>
+        <div class="form-row">
+          <label>Amount ($)</label>
+          <input type="number" id="amount" value="15000">
+        </div>
+        <div class="form-row">
+          <label>Transaction Type</label>
+          <select id="transactionType">
+            <option value="UPI" selected>UPI</option>
+            <option value="NEFT">NEFT</option>
+            <option value="RTGS">RTGS</option>
+            <option value="IMPS">IMPS</option>
+            <option value="CARD">CARD</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Sender Account Hash</label>
+          <input type="text" id="senderHash" value="a3f9102b7e28">
+        </div>
+        <div class="form-row">
+          <label>Receiver Account Hash</label>
+          <input type="text" id="receiverHash" value="b7e2891a4c90">
+        </div>
+        <div class="form-row">
+          <label>Timestamp (ISO 8601)</label>
+          <input type="text" id="timestamp" value="2025-01-15T14:23:00Z">
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:0.5rem;" onclick="scoreTransaction()">
+          Analyze Risk →
+        </button>
+        <div class="risk-result" id="scoreResult">
+          <div class="risk-top">
+            <span>Score: <span id="resScore">—</span> (<span id="resLabel">—</span>)</span>
+            <span class="rec-badge" id="resRecBadge">—</span>
+          </div>
+          <div class="risk-reason" id="resReason">—</div>
+        </div>
+      </div>
+
+    </div><!-- /side-col -->
+  </div><!-- /page -->
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────
+    let chart;
+    const rounds = [], recalls = [], f1s = [];
+    let lastPing = null;
+
+    // ── Helpers ────────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const baseUrl = () => $('baseUrl').value.replace(/\/$/, '');
+    const apiKey  = () => $('apiKey').value;
+
+    async function api(path, method = 'GET', body = null, useKey = true) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (useKey) headers['X-API-Key'] = apiKey();
+      const opts = { method, headers };
+      if (body) opts.body = JSON.stringify(body);
+      return fetch(baseUrl() + path, opts);
+    }
+
+    function fmtPct(v) { return v != null ? (v * 100).toFixed(1) + '%' : '—'; }
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      return iso.substring(0, 10) + ' ' + iso.substring(11, 19);
+    }
+
+    // ── Wake Server (Render cold-start) ────────────────────────────
+    async function wakeServer() {
+      $('wakeBtn').textContent = '⏳ Waking…';
+      $('wakeBtn').disabled = true;
+      try {
+        const r = await fetch(baseUrl() + '/');
+        if (r.ok) {
+          $('wakeBtn').textContent = '✅ Awake';
+          setServerOnline(true);
+          setTimeout(() => { $('wakeBtn').textContent = '☀️ Wake'; $('wakeBtn').disabled = false; }, 3000);
+        }
+      } catch {
+        $('wakeBtn').textContent = '❌ Offline';
+        setServerOnline(false);
+        setTimeout(() => { $('wakeBtn').textContent = '☀️ Wake'; $('wakeBtn').disabled = false; }, 3000);
+      }
+    }
+
+    function setServerOnline(online) {
+      $('statusDot').style.background = online ? 'var(--green)' : 'var(--red)';
+      $('statusDot').style.boxShadow  = online ? '0 0 6px var(--green)' : '0 0 6px var(--red)';
+      lastPing = new Date();
+      $('serverStatus').textContent = online ? 'online' : 'offline';
+    }
+
+    // ── Chart ──────────────────────────────────────────────────────
+    function initChart() {
+      const ctx = $('metricsChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: rounds,
+          datasets: [
+            {
+              label: 'Recall (Fraud Caught)',
+              data: recalls,
+              borderColor: '#10b981',
+              backgroundColor: '#10b98122',
+              tension: 0.35,
+              fill: true,
+              pointRadius: 3,
+            },
+            {
+              label: 'F1 Score',
+              data: f1s,
+              borderColor: '#3b82f6',
+              backgroundColor: '#3b82f622',
+              tension: 0.35,
+              fill: true,
+              pointRadius: 3,
+            },
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+          scales: {
+            y: { min: 0, max: 1, grid: { color: '#1e2d45' }, ticks: { color: '#64748b', font: { size: 10 } } },
+            x: { grid: { color: '#1e2d45' }, ticks: { color: '#64748b', font: { size: 10 } } },
+          }
+        }
+      });
+    }
+
+    // ── Update Status (GET /status) ────────────────────────────────
+    async function updateStatus() {
+      try {
+        const r = await fetch(baseUrl() + '/status');
+        if (!r.ok) { setServerOnline(false); return; }
+        setServerOnline(true);
+        const data = await r.json();
+
+        $('kpiRounds').textContent = data.current_round ?? '0';
+        if (data.latest_metrics) {
+          $('kpiAcc').textContent = fmtPct(data.latest_metrics.accuracy);
+          $('kpiF1').textContent  = fmtPct(data.latest_metrics.f1);
+        }
+
+        if (data.history && data.history.length) {
+          rounds.length = 0; recalls.length = 0; f1s.length = 0;
+          data.history.forEach(h => {
+            rounds.push('R' + h.round);
+            recalls.push(h.global_metrics.recall);
+            f1s.push(h.global_metrics.f1);
+          });
+          chart.update();
+
+          // Vault cards — accuracy
+          const latest = data.history[data.history.length - 1];
+          const acc = latest.per_bank_accuracy || {};
+          [0,1,2,3].forEach(i => {
+            const v = acc['bank_' + i];
+            $('b'+i+'-acc').textContent = v != null ? fmtPct(v) : '—';
+          });
+
+          // Contribution weights
+          const contrib = latest.per_bank_contribution || {};
+          [0,1,2,3].forEach(i => {
+            const w = contrib['bank_' + i];
+            if (w != null) {
+              const pct = (w * 100).toFixed(1);
+              $('b'+i+'-bar').style.width = pct + '%';
+              $('b'+i+'-wt').textContent  = pct + '% of global model';
+            }
+          });
+
+          // DP label
+          const dp = latest.dp_info;
+          if (dp && dp.enabled) {
+            $('dpLabel').textContent = `DP ε = ${dp.epsilon}  |  ${latest.aggregation_method || 'FedAvg'}`;
+          }
+        }
+      } catch { setServerOnline(false); }
+    }
+
+    // ── Ping root for registered_banks KPI ────────────────────────
+    async function updateRootKPI() {
+      try {
+        const r = await fetch(baseUrl() + '/');
+        if (r.ok) {
+          const d = await r.json();
+          $('kpiRegistered').textContent = d.registered_banks ?? '0';
+        }
+      } catch {}
+    }
+
+    // ── Run Training Round (POST /train) ───────────────────────────
+    async function runTrainRound() {
+      const epsilon = parseFloat($('epsilon').value) || 1.0;
+      const secagg  = $('secaggToggle').checked;
+      const r = await api(`/train?epsilon=${epsilon}&use_dp=true&simulate_secagg=${secagg}`, 'POST');
+      if (r.ok) {
+        await updateStatus();
+        await fetchAuditLogs();
+        await updateRootKPI();
+      } else {
+        alert('Training failed — check API Key or server status.');
+      }
+    }
+
+    // ── Reset (POST /reset) ────────────────────────────────────────
+    async function resetTrainer() {
+      if (!confirm('Reset federated trainer? All round history will be lost.')) return;
+      const r = await api('/reset', 'POST');
+      if (r.ok) {
+        rounds.length = 0; recalls.length = 0; f1s.length = 0;
+        chart.update();
+        [0,1,2,3].forEach(i => {
+          $('b'+i+'-acc').textContent = '—';
+          $('b'+i+'-bar').style.width = '0%';
+          $('b'+i+'-wt').textContent  = '—% of model';
+        });
+        $('kpiRounds').textContent = '0';
+        $('kpiAcc').textContent = '—';
+        $('kpiF1').textContent  = '—';
+        await fetchAuditLogs();
+      }
+    }
+
+    // ── Bank Registry: Register (POST /register) ───────────────────
+    async function registerBank() {
+      const name = $('newBankName').value.trim();
+      const tier = $('newBankTier').value;
+      if (!name) { alert('Enter a bank name.'); return; }
+      const r = await fetch(baseUrl() + '/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bank_name: name, tier })
+      });
+      if (r.ok) {
+        const d = await r.json();
+        $('regOutput').textContent = `✅ Key (save now — shown once only): ${d.api_key}`;
+        $('newBankName').value = '';
+        await loadRegistry();
+        await updateRootKPI();
+        // Offer to copy key to the auth field
+        $('apiKey').value = d.api_key;
+      } else {
+        $('regOutput').textContent = '❌ Registration failed.';
+      }
+    }
+
+    // ── Bank Registry: Load Table (GET /admin/banks) ───────────────
+    async function loadRegistry() {
+      const r = await api('/admin/banks');
+      const tbody = $('registryBody');
+      if (!r.ok) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Cannot load registry — check admin key.</div></td></tr>';
+        return;
+      }
+      const data = await r.json();
+      if (!data.banks || data.banks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">No registered banks yet.</div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.banks.map(b => `
+        <tr id="row-${b.full_key ? b.full_key.substring(0,16) : ''}">
+          <td><strong>${b.bank_name}</strong></td>
+          <td>${b.tier || '—'}</td>
+          <td>${fmtDate(b.created_at)}</td>
+          <td>${fmtDate(b.last_active)}</td>
+          <td><span class="status-badge ${b.active ? 'active' : 'revoked'}">${b.active ? 'Active' : 'Revoked'}</span></td>
+          <td><span class="key-prefix">${b.api_key_prefix || '—'}</span></td>
+          <td>
+            ${b.active
+              ? `<button class="btn btn-danger btn-sm" onclick="revokeBank('${b.full_key}', this)">Revoke</button>`
+              : `<button class="btn btn-ghost btn-sm" onclick="reinstateBank('${b.full_key}', this)">Reinstate</button>`
+            }
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ── Bank Registry: Revoke (POST /admin/banks/{key}/revoke) ─────
+    async function revokeBank(key, btn) {
+      if (!confirm('Revoke this bank key? It will immediately stop working.')) return;
+      const r = await api(`/admin/banks/${key}/revoke`, 'POST');
+      if (r.ok) {
+        await loadRegistry();
+        await updateRootKPI();
+      } else {
+        alert('Revoke failed — check admin key.');
+      }
+    }
+
+    // ── Bank Registry: Reinstate ───────────────────────────────────
+    async function reinstateBank(key, btn) {
+      const r = await api(`/admin/banks/${key}/reinstate`, 'POST');
+      if (r.ok) await loadRegistry();
+    }
+
+    // ── Audit Log (GET /audit) ─────────────────────────────────────
+    async function fetchAuditLogs() {
+      try {
+        const r = await fetch(baseUrl() + '/audit');
+        if (!r.ok) return;
+        const data = await r.json();
+        const wrap = $('auditScroll');
+        if (!data.logs || data.logs.length === 0) {
+          wrap.innerHTML = '<div class="empty-state">No audit entries yet — run a training round.</div>';
+          return;
+        }
+        wrap.innerHTML = [...data.logs].reverse().map(log => `
+          <div class="audit-row">
+            <span class="audit-time">${(log.timestamp || '').substring(11, 19)}</span>
+            <span class="audit-round">R${log.round}</span>
+            <span class="audit-trigger">${log.triggered_by || '—'}</span>
+            <span class="audit-acc">${log.global_metrics ? fmtPct(log.global_metrics.accuracy) : '—'}</span>
+          </div>
+        `).join('');
+      } catch {}
+    }
+
+    // ── Score Transaction (POST /score) ────────────────────────────
+    async function scoreTransaction() {
+      const payload = {
+        amount:               parseFloat($('amount').value),
+        transaction_type:     $('transactionType').value,
+        sender_account_hash:  $('senderHash').value,
+        receiver_account_hash:$('receiverHash').value,
+        timestamp:            $('timestamp').value,
+      };
+      const r = await api('/score', 'POST', payload);
+      const box = $('scoreResult');
+      box.style.display = 'block';
+      if (r.ok) {
+        const d = await r.json();
+        $('resScore').textContent = d.risk_score;
+        $('resLabel').textContent = d.risk_label;
+        $('resReason').textContent = d.reason;
+        const badge = $('resRecBadge');
+        badge.textContent  = d.recommendation;
+        badge.className    = 'rec-badge ' + d.recommendation;
+        box.className      = 'risk-result ' + d.risk_label;
+      } else {
+        $('resScore').textContent  = 'ERROR';
+        $('resReason').textContent = 'Scoring failed — check key or server.';
+        box.className = 'risk-result HIGH';
+      }
+    }
+
+    // ── Init ───────────────────────────────────────────────────────
+    window.onload = async () => {
+      initChart();
+      await updateStatus();
+      await updateRootKPI();
+      await fetchAuditLogs();
+      await loadRegistry();
+      // Refresh every 30 s
+      setInterval(async () => {
+        await updateStatus();
+        await updateRootKPI();
+      }, 30_000);
+    };
+  </script>
+</body>
+</html>

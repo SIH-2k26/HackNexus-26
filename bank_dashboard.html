@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vaultic — Institution Bank Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      /* Surface Color Hierarchy */
+      --bg:        #080c14; /* Deepest navy-black main background */
+      --surface:   #0f1623; /* Header, table rows, input backgrounds, sub-tiles */
+      --card:      #141d2e; /* Primary container card background */
+      --card-hi:   #1a2540; /* Card hover background & ghost button fill */
+      --border:    #1e2d45; /* Subtle container borders & row dividers */
+      --border-hi: #2a3f5f; /* Interactive hover borders & scrollbar thumbs */
+
+      /* Accent & Semantic Palette */
+      --blue:      #3b82f6; /* Brand primary blue, headings, active buttons */
+      --blue-dim:  #1d4ed8; /* Darker blue accent variant */
+      --green:     #10b981; /* Active status, positive recall metrics, allow badges */
+      --red:       #ef4444; /* Revoked status, high risk flags, danger buttons */
+      --yellow:    #f59e0b; /* Caution, medium risk badges, warning buttons */
+      --purple:    #8b5cf6; /* Secondary metrics (training round counts) */
+
+      /* Neutral Typography */
+      --text:      #e2e8f0; /* Primary body text (light slate) */
+      --muted:     #64748b; /* Section headers, labels, inactive captions */
+      --sub:       #94a3b8; /* Sub-labels, key prefixes, pill text */
+
+      /* Font Families */
+      --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue);
+    }
+
+    .brand-title {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--sub);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.2rem 0.6rem;
+      font-weight: 500;
+    }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--sub);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Page Layout */
+    .page {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      flex: 1;
+    }
+
+    .main-col {
+      padding: 1.5rem 1.5rem 1.5rem 2rem;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .sidebar-col {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .main-col { border-right: none; border-bottom: 1px solid var(--border); }
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Card Pattern */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+    }
+
+    /* KPI Row & Tiles */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .kpi-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .kpi-value {
+      font-family: var(--font-body);
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .kpi.blue .kpi-value { color: var(--blue); }
+    .kpi.green .kpi-value { color: var(--green); }
+    .kpi.purple .kpi-value { color: var(--purple); }
+    .kpi.yellow .kpi-value { color: var(--yellow); }
+
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--sub);
+      font-family: var(--font-mono);
+    }
+
+    /* Vault Card Pattern */
+    .vault-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .vault-card:hover {
+      border-color: var(--border-hi);
+    }
+
+    .vault-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .vault-card h3 {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--blue);
+      margin: 0;
+    }
+
+    .vault-acc {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.15rem;
+      color: var(--text);
+    }
+
+    .vault-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .contribution-bar-wrap {
+      background: var(--border);
+      border-radius: 4px;
+      height: 4px;
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+
+    .contribution-bar {
+      background: var(--blue);
+      border-radius: 4px;
+      height: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .contribution-label {
+      font-size: 0.72rem;
+      color: var(--sub);
+      margin-top: 0.4rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Buttons */
+    .btn {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 0.9rem;
+      border-radius: 7px;
+      background: var(--blue);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .btn:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: #ffffff;
+    }
+
+    .btn-ghost {
+      background: var(--card-hi);
+      color: var(--sub);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--border-hi);
+      color: var(--text);
+    }
+
+    .btn-sm {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.72rem;
+    }
+
+    /* Badges & Pills */
+    .pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.75rem;
+      color: var(--sub);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 5px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-badge.active {
+      background: #052e16;
+      color: var(--green);
+    }
+
+    .status-badge.revoked {
+      background: #450a0a;
+      color: var(--red);
+    }
+
+    .demo-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--yellow);
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 0.15rem 0.45rem;
+      border-radius: 5px;
+      font-weight: 500;
+      margin-left: 0.5rem;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+
+    /* Form Inputs */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .form-row label {
+      font-size: 0.75rem;
+      color: var(--sub);
+    }
+
+    input[type="text"], input[type="number"] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.8rem;
+      border-radius: 7px;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      width: 100%;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    /* Transaction Scorer Sliders Grid */
+    .preset-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .slider-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem 1.25rem;
+    }
+
+    @media (max-width: 650px) {
+      .slider-grid { grid-template-columns: 1fr; }
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+    }
+
+    .slider-name {
+      color: var(--sub);
+    }
+
+    .slider-val {
+      font-family: var(--font-mono);
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--blue);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Risk Alert Box Pattern */
+    .risk-result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .risk-result.LOW {
+      background: #05231422;
+      border: 1px solid var(--green);
+      color: #6ee7b7;
+    }
+
+    .risk-result.MEDIUM {
+      background: #451a0322;
+      border: 1px solid var(--yellow);
+      color: #fde68a;
+    }
+
+    .risk-result.HIGH {
+      background: #450a0a22;
+      border: 1px solid var(--red);
+      color: #fca5a5;
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 5px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-left: 0.5rem;
+    }
+
+    .risk-result.LOW .risk-badge { background: #052e16; color: var(--green); }
+    .risk-result.MEDIUM .risk-badge { background: #451a03; color: var(--yellow); }
+    .risk-result.HIGH .risk-badge { background: #450a0a; color: var(--red); }
+
+    /* Audit Table Pattern */
+    .audit-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-align: left;
+    }
+
+    .audit-table th {
+      background: var(--card-hi);
+      color: var(--muted);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+
+    .audit-table td {
+      padding: 0.45rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .audit-table tr:hover td {
+      background: var(--card);
+    }
+
+    /* Sidebar Status Rows Pattern */
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+
+    .status-row:last-child {
+      border-bottom: none;
+    }
+
+    .status-label {
+      color: var(--sub);
+    }
+
+    .status-val {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .status-line {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      margin-top: 0.6rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .status-line.idle { color: var(--sub); }
+    .status-line.ok { color: var(--green); border-color: rgba(16, 185, 129, 0.3); }
+    .status-line.error { color: var(--red); border-color: rgba(239, 68, 68, 0.3); }
+
+    .chart-container {
+      position: relative;
+      height: 220px;
+      width: 100%;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h1 class="brand-title">VAULTIC</h1>
+      <span class="brand-subtitle">Bank Console</span>
+    </div>
+    <div class="header-status">
+      <span class="status-dot"></span>
+      <span id="headerStatusText">Connected</span>
+    </div>
+  </header>
+
+  <!-- Page Layout -->
+  <div class="page">
+    
+    <!-- Main Column -->
+    <main class="main-col">
+
+      <!-- 1. KPI Row -->
+      <section class="kpi-row">
+        <div class="kpi blue">
+          <span class="kpi-label">Global Accuracy</span>
+          <span class="kpi-value" id="kpiAccuracy">95.8%</span>
+          <span class="kpi-sub">FedAvg Consensus</span>
+        </div>
+        <div class="kpi green">
+          <span class="kpi-label">Global Recall</span>
+          <span class="kpi-value" id="kpiRecall">92.3%</span>
+          <span class="kpi-sub">Fraud Detection Rate</span>
+        </div>
+        <div class="kpi purple">
+          <span class="kpi-label">Rounds Participated</span>
+          <span class="kpi-value" id="kpiRounds">14</span>
+          <span class="kpi-sub">DP & SecAgg Active</span>
+        </div>
+        <div class="kpi yellow">
+          <span class="kpi-label">Your Contribution %</span>
+          <span class="kpi-value" id="kpiContribution">25.0%</span>
+          <span class="kpi-sub">Share of Global Model</span>
+        </div>
+      </section>
+
+      <!-- 2. Your Institution Card -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Your Institution</h2>
+        </div>
+        <div class="vault-card">
+          <div class="vault-card-header">
+            <h3 id="instCardName">Bank 0 (Apex Financial)</h3>
+            <span class="pill">Tier 1 Commercial</span>
+          </div>
+          <div class="vault-acc" id="instCardAcc">96.4%</div>
+          <div class="vault-sub">local node validation accuracy</div>
+          <div class="contribution-bar-wrap">
+            <div class="contribution-bar" id="instCardBar" style="width: 25%;"></div>
+          </div>
+          <div class="contribution-label" id="instCardLabel">25.0% of global model weight (12,500 local samples)</div>
+        </div>
+      </section>
+
+      <!-- 3. Live Accuracy Chart -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Live Model Accuracy & Recall Evolution</h2>
+        </div>
+        <div class="chart-container">
+          <canvas id="liveChart"></canvas>
+        </div>
+      </section>
+
+      <!-- 4. Transaction Scoring Panel -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Transaction Fraud Scorer</h2>
+        </div>
+        <div class="preset-bar">
+          <button class="btn btn-ghost btn-sm" onclick="loadPreset('normal')">⚡ Load Normal-Like</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadPreset('fraud')">⚠️ Load Fraud-Like</button>
+        </div>
+
+        <div class="slider-grid">
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f0: Amount (Normalized)</span>
+              <span class="slider-val" id="val-f0">0.10</span>
+            </div>
+            <input type="range" id="f0" min="-2.0" max="3.0" step="0.05" value="0.10" oninput="updateSlider('f0')">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f1: Tx Type Code</span>
+              <span class="slider-val" id="val-f1">0.50</span>
+            </div>
+            <input type="range" id="f1" min="0.0" max="2.0" step="0.05" value="0.50" oninput="updateSlider('f1')">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f2: Sender Hash Val</span>
+              <span class="slider-val" id="val-f2">0.00</span>
+            </div>
+            <input type="range" id="f2" min="-1.0" max="1.0" step="0.05" value="0.00" oninput="updateSlider('f2')">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f3: Receiver Hash Val</span>
+              <span class="slider-val" id="val-f3">0.00</span>
+            </div>
+            <input type="range" id="f3" min="-1.0" max="1.0" step="0.05" value="0.00" oninput="updateSlider('f3')">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f4: Off-Hours Flag</span>
+              <span class="slider-val" id="val-f4">0.00</span>
+            </div>
+            <input type="range" id="f4" min="0.0" max="2.0" step="0.05" value="0.00" oninput="updateSlider('f4')">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f5: Hour of Day Norm</span>
+              <span class="slider-val" id="val-f5">0.00</span>
+            </div>
+            <input type="range" id="f5" min="-1.0" max="1.0" step="0.05" value="0.00" oninput="updateSlider('f5')">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f6: Static Context A</span>
+              <span class="slider-val" id="val-f6">0.10</span>
+            </div>
+            <input type="range" id="f6" min="0.0" max="1.0" step="0.05" value="0.10" oninput="updateSlider('f6')">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f7: Static Context B</span>
+              <span class="slider-val" id="val-f7">0.00</span>
+            </div>
+            <input type="range" id="f7" min="0.0" max="1.0" step="0.05" value="0.00" oninput="updateSlider('f7')">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f8: Static Context C</span>
+              <span class="slider-val" id="val-f8">0.00</span>
+            </div>
+            <input type="range" id="f8" min="0.0" max="1.0" step="0.05" value="0.00" oninput="updateSlider('f8')">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">f9: Static Context D</span>
+              <span class="slider-val" id="val-f9">0.00</span>
+            </div>
+            <input type="range" id="f9" min="0.0" max="1.0" step="0.05" value="0.00" oninput="updateSlider('f9')">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; margin-top: 1.25rem;" onclick="scoreTransaction()">Analyze Transaction Risk</button>
+
+        <div id="scoreResult" class="risk-result">
+          <div style="font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; justify-content: space-between;">
+            <span>Risk Score: <span id="resScore" style="font-family: var(--font-mono);">--</span> (<span id="resLabel">--</span>)</span>
+            <span id="resBadge" class="risk-badge">--</span>
+          </div>
+          <div id="resReason" style="font-size: 0.82rem; margin-top: 0.5rem; line-height: 1.4;">--</div>
+        </div>
+      </section>
+
+      <!-- 5. Audit Log Table -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Institution Audit Log <span class="demo-tag">demo data — endpoint pending</span></h2>
+          <button class="btn btn-ghost btn-sm" onclick="fetchAuditLogs()">Refresh</button>
+        </div>
+        <div class="audit-table-wrap">
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Round</th>
+                <th>Action / Event</th>
+                <th>Accuracy</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <!-- Dynamically populated or demo rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Sidebar Column -->
+    <aside class="sidebar-col">
+
+      <!-- 1. Institution Status Card -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Institution Status <span class="demo-tag">demo data — endpoint pending</span></h2>
+        </div>
+        
+        <div class="status-row">
+          <span class="status-label">Institution</span>
+          <span class="status-val" id="sbInstName">Bank 0 (Apex)</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Tier</span>
+          <span class="pill" style="padding: 0.15rem 0.45rem; font-size: 0.7rem;">Tier 1 Commercial</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Connection</span>
+          <span class="status-badge active" id="sbConnBadge">CONNECTED</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Member Since</span>
+          <span class="status-val">2024-11-12</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">API Key</span>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span class="status-val" id="sbApiKeyMasked">vlt_live_8f3a...91e2</span>
+            <button class="btn btn-ghost btn-sm" id="copyBtn" onclick="copyApiKey()">Copy</button>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-ghost btn-sm" style="flex: 1;" onclick="rotateKey()">Rotate Key</button>
+          <button class="btn btn-danger btn-sm" style="flex: 1;" onclick="revokeKey()">Revoke Access</button>
+        </div>
+      </section>
+
+      <!-- 2. Connection Config Card -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Connection Config</h2>
+        </div>
+        <div class="form-group">
+          <div class="form-row">
+            <label for="baseUrl">API Base URL</label>
+            <input type="text" id="baseUrl" value="http://localhost:8000">
+          </div>
+          <div class="form-row">
+            <label for="apiKey">API Key</label>
+            <input type="text" id="apiKey" value="demo-key-12345">
+          </div>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 0.3rem;" onclick="connectBackend()">Connect</button>
+          <div class="status-line idle" id="connectionStatus">Status: Idle (Attempting auto-connect...)</div>
+        </div>
+      </section>
+
+      <!-- 3. Global Model Snapshot Card -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Global Model Snapshot</h2>
+        </div>
+        
+        <div class="status-row">
+          <span class="status-label">Precision</span>
+          <span class="status-val" id="snapPrecision">94.1%</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">F1 Score</span>
+          <span class="status-val" id="snapF1">0.932</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Active Banks</span>
+          <span class="status-val" id="snapBanks">4 Nodes</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Last Round</span>
+          <span class="status-val" id="snapRound">Round 14</span>
+        </div>
+      </section>
+
+    </aside>
+  </div>
+
+  <script>
+    let chart;
+    const historyRounds = [];
+    const historyAcc = [];
+    const historyRecall = [];
+
+    const presets = {
+      normal: [-0.5, 0.5, 0.1, -0.2, 0.0, 0.2, 0.1, 0.0, 0.05, 0.1],
+      fraud:  [ 2.2, 1.2, 0.8, -0.9, 1.5, -0.8, 0.9, 0.85, 0.95, 0.9]
+    };
+
+    window.onload = () => {
+      initChart();
+      populateDemoAuditLogs();
+      connectBackend();
+    };
+
+    function initChart() {
+      const ctx = document.getElementById('liveChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: historyRounds,
+          datasets: [
+            {
+              label: 'Global Accuracy',
+              data: historyAcc,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Global Recall',
+              data: historyRecall,
+              borderColor: '#10b981',
+              backgroundColor: 'transparent',
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#e2e8f0',
+                font: { family: "'Inter', sans-serif", size: 12 }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: '#1e2d45' },
+              ticks: { color: '#64748b', font: { family: "'JetBrains Mono', monospace", size: 10 } }
+            },
+            y: {
+              min: 0,
+              max: 1.0,
+              grid: { color: '#1e2d45' },
+              ticks: { color: '#64748b', font: { family: "'JetBrains Mono', monospace", size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    async function connectBackend() {
+      const baseUrl = document.getElementById('baseUrl').value.trim();
+      const statusLine = document.getElementById('connectionStatus');
+      const headerStatus = document.getElementById('headerStatusText');
+      const connBadge = document.getElementById('sbConnBadge');
+
+      statusLine.className = 'status-line idle';
+      statusLine.innerText = 'Connecting to ' + baseUrl + '...';
+
+      try {
+        const res = await fetch(`${baseUrl}/status`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        
+        // Update connection status line
+        statusLine.className = 'status-line ok';
+        statusLine.innerText = `✓ Connected (Round ${data.current_round} active)`;
+        headerStatus.innerText = 'Connected';
+        connBadge.innerText = 'CONNECTED';
+        connBadge.className = 'status-badge active';
+
+        // Update KPIs
+        if (data.latest_metrics) {
+          document.getElementById('kpiAccuracy').innerText = (data.latest_metrics.accuracy * 100).toFixed(1) + '%';
+          document.getElementById('kpiRecall').innerText = (data.latest_metrics.recall * 100).toFixed(1) + '%';
+          document.getElementById('snapPrecision').innerText = (data.latest_metrics.precision * 100).toFixed(1) + '%';
+          document.getElementById('snapF1').innerText = data.latest_metrics.f1.toFixed(3);
+        }
+        document.getElementById('kpiRounds').innerText = data.current_round;
+        document.getElementById('snapRound').innerText = `Round ${data.current_round}`;
+
+        const bankCount = data.registered_banks ? data.registered_banks.length : 4;
+        document.getElementById('snapBanks').innerText = `${bankCount} Nodes`;
+        
+        const contribPct = (100 / bankCount).toFixed(1) + '%';
+        document.getElementById('kpiContribution').innerText = contribPct;
+        document.getElementById('instCardBar').style.width = contribPct;
+        document.getElementById('instCardLabel').innerText = `${contribPct} of global model weight (12,500 local samples)`;
+
+        // Update Chart history
+        if (data.history && data.history.length > 0) {
+          historyRounds.length = 0;
+          historyAcc.length = 0;
+          historyRecall.length = 0;
+
+          data.history.forEach(h => {
+            historyRounds.push(`R${h.round}`);
+            historyAcc.push(h.global_metrics.accuracy);
+            historyRecall.push(h.global_metrics.recall);
+
+            // Update institution local accuracy from last round if available
+            if (h.per_bank_accuracy && h.per_bank_accuracy.bank_0 !== undefined) {
+              document.getElementById('instCardAcc').innerText = (h.per_bank_accuracy.bank_0 * 100).toFixed(1) + '%';
+            }
+          });
+
+          chart.update();
+        }
+
+      } catch (e) {
+        statusLine.className = 'status-line error';
+        statusLine.innerText = `✕ Connection Failed: Backend unreachable (${e.message})`;
+        headerStatus.innerText = 'Disconnected';
+        connBadge.innerText = 'DISCONNECTED';
+        connBadge.className = 'status-badge revoked';
+
+        // Load demo baseline values for chart if backend offline
+        loadDemoChartData();
+      }
+    }
+
+    function loadDemoChartData() {
+      historyRounds.length = 0;
+      historyAcc.length = 0;
+      historyRecall.length = 0;
+      
+      const demoData = [
+        { round: 'R1', acc: 0.812, rec: 0.745 },
+        { round: 'R2', acc: 0.845, rec: 0.789 },
+        { round: 'R3', acc: 0.880, rec: 0.821 },
+        { round: 'R4', acc: 0.905, rec: 0.854 },
+        { round: 'R5', acc: 0.924, rec: 0.887 },
+        { round: 'R6', acc: 0.941, rec: 0.908 },
+        { round: 'R7', acc: 0.958, rec: 0.923 }
+      ];
+
+      demoData.forEach(d => {
+        historyRounds.push(d.round);
+        historyAcc.push(d.acc);
+        historyRecall.push(d.rec);
+      });
+
+      chart.update();
+    }
+
+    function updateSlider(id) {
+      const val = parseFloat(document.getElementById(id).value).toFixed(2);
+      document.getElementById('val-' + id).innerText = val;
+    }
+
+    function loadPreset(type) {
+      const vals = presets[type];
+      if (!vals) return;
+      for (let i = 0; i < 10; i++) {
+        const id = 'f' + i;
+        const slider = document.getElementById(id);
+        slider.value = vals[i];
+        updateSlider(id);
+      }
+    }
+
+    async function scoreTransaction() {
+      const baseUrl = document.getElementById('baseUrl').value.trim();
+      const apiKey = document.getElementById('apiKey').value.trim();
+
+      const features = [];
+      for (let i = 0; i < 10; i++) {
+        features.push(parseFloat(document.getElementById('f' + i).value));
+      }
+
+      const box = document.getElementById('scoreResult');
+      box.style.display = 'block';
+
+      try {
+        const res = await fetch(`${baseUrl}/score`, {
+          method: 'POST',
+          headers: {
+            'X-API-Key': apiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ features })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          let score, label, reason, rec;
+
+          if (data.risk_score !== undefined) {
+            score = data.risk_score;
+            label = data.risk_label;
+            reason = data.reason;
+            rec = data.recommendation;
+          } else {
+            score = data.fraud_probability !== undefined ? data.fraud_probability : 0.5;
+            if (score < 0.3) label = 'LOW';
+            else if (score <= 0.7) label = 'MEDIUM';
+            else label = 'HIGH';
+            
+            rec = score > 0.5 ? 'FLAG' : 'ALLOW';
+            reason = generateReasonFromFeatures(features, score);
+          }
+
+          document.getElementById('resScore').innerText = score.toFixed(2);
+          document.getElementById('resLabel').innerText = label;
+          document.getElementById('resReason').innerText = `${reason} (Rec: ${rec})`;
+          
+          const badge = document.getElementById('resBadge');
+          badge.innerText = rec;
+          box.className = 'risk-result ' + label;
+        } else {
+          document.getElementById('resScore').innerText = 'ERROR';
+          document.getElementById('resLabel').innerText = 'FAILED';
+          document.getElementById('resReason').innerText = 'API returned HTTP ' + res.status + '. Check API key or endpoint.';
+          document.getElementById('resBadge').innerText = 'ERROR';
+          box.className = 'risk-result HIGH';
+        }
+      } catch (e) {
+        document.getElementById('resScore').innerText = 'ERROR';
+        document.getElementById('resLabel').innerText = 'OFFLINE';
+        document.getElementById('resReason').innerText = 'Unable to score transaction: Backend endpoint unreachable.';
+        document.getElementById('resBadge').innerText = 'OFFLINE';
+        box.className = 'risk-result HIGH';
+      }
+    }
+
+    function generateReasonFromFeatures(features, score) {
+      const reasons = [];
+      if (features[0] > 1.0) reasons.push('High transaction magnitude (f0 > 1.0)');
+      if (features[4] > 0.5) reasons.push('Off-hours timing indicator detected (f4)');
+      if (features[6] > 0.5 || features[7] > 0.5) reasons.push('Elevated channel/device risk anomaly');
+
+      if (reasons.length === 0) {
+        if (score > 0.7) reasons.push('Unusual high-risk vector profile detected across global nodes');
+        else if (score > 0.3) reasons.push('Moderate transaction risk profile evaluated');
+        else reasons.push('Normal transaction parameters verified across model');
+      }
+      return reasons.join('; ');
+    }
+
+    function populateDemoAuditLogs() {
+      const body = document.getElementById('auditTableBody');
+      const demoLogs = [
+        { time: '2025-01-15 14:22:01', round: 'R14', action: 'FedAvg Gradient Sync', acc: '96.4%', status: 'CONFIRMED' },
+        { time: '2025-01-15 14:18:45', round: 'R14', action: 'DP Noise Layer Injection (ε=1.0)', acc: '96.1%', status: 'VERIFIED' },
+        { time: '2025-01-15 13:55:10', round: 'R13', action: 'FedAvg Gradient Sync', acc: '95.8%', status: 'CONFIRMED' },
+        { time: '2025-01-15 13:30:22', round: 'R12', action: 'Local Model Training Pass', acc: '95.2%', status: 'COMPLETED' },
+        { time: '2025-01-15 13:00:15', round: 'R11', action: 'SecAgg Mask Verification', acc: '94.7%', status: 'MATCHED' }
+      ];
+
+      body.innerHTML = demoLogs.map(l => `
+        <tr>
+          <td style="color: var(--muted);">${l.time}</td>
+          <td style="color: var(--blue); font-weight: 500;">${l.round}</td>
+          <td>${l.action}</td>
+          <td style="color: var(--green);">${l.acc}</td>
+          <td><span class="status-badge active">${l.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    async function fetchAuditLogs() {
+      const baseUrl = document.getElementById('baseUrl').value.trim();
+      try {
+        const res = await fetch(`${baseUrl}/audit`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.logs && data.logs.length > 0) {
+            const body = document.getElementById('auditTableBody');
+            body.innerHTML = data.logs.slice().reverse().map(l => `
+              <tr>
+                <td style="color: var(--muted);">${l.timestamp ? l.timestamp.substring(0, 19).replace('T', ' ') : 'N/A'}</td>
+                <td style="color: var(--blue); font-weight: 500;">R${l.round}</td>
+                <td>Gradient Update (${l.triggered_by || 'FedAvg'})</td>
+                <td style="color: var(--green);">${l.global_metrics ? (l.global_metrics.accuracy * 100).toFixed(1) + '%' : '--'}</td>
+                <td><span class="status-badge active">LOGGED</span></td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        populateDemoAuditLogs();
+      }
+    }
+
+    function copyApiKey() {
+      const keyText = 'vlt_live_8f3a91e2bc47d01e';
+      navigator.clipboard.writeText(keyText).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const orig = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => { btn.innerText = orig; }, 2000);
+      }).catch(() => {
+        alert('API Key: ' + keyText);
+      });
+    }
+
+    function rotateKey() {
+      alert('Key Rotation (Demo): Requesting key rotation endpoint (POST /me/rotate-key)... A new key will be generated for Bank 0 upon backend implementation.');
+    }
+
+    function revokeKey() {
+      alert('Access Revocation Restriction: Only Vaultic network operators can revoke institution credentials. Please contact security@vaultic.io or system administration to revoke bank access.');
+    }
+  </script>
+</body>
+</html>

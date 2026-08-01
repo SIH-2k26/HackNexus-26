@@ -27,8 +27,8 @@ export function Layout({ children }: LayoutProps) {
               <Shield className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight">FedGuard</h1>
-              <p className="text-xs text-muted-foreground font-mono">FL v2.3.1</p>
+              <h1 className="text-lg font-semibold tracking-tight">Vaultic API</h1>
+              <p className="text-xs text-muted-foreground font-mono">v.0.0.1</p>
             </div>
           </div>
         </div>
