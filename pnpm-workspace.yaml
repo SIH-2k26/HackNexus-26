@@ -67,7 +67,7 @@ onlyBuiltDependencies:
   - unrs-resolver
 
   # exclude unused platform binaries to reduce install size
-neverBuiltDependencies:
+packageExtensions:
   # "esbuild>@esbuild/darwin-x64": "-"
   "esbuild>@esbuild/freebsd-arm64": "-"
   "esbuild>@esbuild/freebsd-x64": "-"
