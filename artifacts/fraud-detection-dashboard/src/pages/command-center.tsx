@@ -28,9 +28,9 @@ export default function CommandCenter() {
         <div className="px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Federated Learning Command Center</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Command Center</h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Privacy-preserving fraud detection across 4 banking institutions
+                Privacy-preserving fraud detection across SBI, HDFC, ICICI, and Axis Bank
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -51,6 +51,63 @@ export default function CommandCenter() {
 
       {/* Main content */}
       <div className="p-8 space-y-8">
+        {/* Architecture Flow Card */}
+        <section className="bg-card border border-card-border rounded-xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-semibold tracking-tight">Federated Learning Architecture Flow</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">End-to-end privacy-preserving transaction scoring pipeline</p>
+            </div>
+            <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">
+              Zero Data Exposure
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 items-center">
+            <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
+              <div className="text-xl mb-1">🏦</div>
+              <p className="text-xs font-semibold">Participating Banks</p>
+              <p className="text-[10px] text-muted-foreground">SBI, HDFC, ICICI, Axis</p>
+            </div>
+
+            <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
+              <div className="text-xl mb-1">🧠</div>
+              <p className="text-xs font-semibold">Local Training</p>
+              <p className="text-[10px] text-muted-foreground">5 Epochs / SMOTE</p>
+            </div>
+
+            <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
+              <div className="text-xl mb-1">🛡️</div>
+              <p className="text-xs font-semibold">Diff. Privacy</p>
+              <p className="text-[10px] text-muted-foreground">Gaussian Noise (ε=1.0)</p>
+            </div>
+
+            <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
+              <div className="text-xl mb-1">🔐</div>
+              <p className="text-xs font-semibold">SecAgg Mask</p>
+              <p className="text-[10px] text-muted-foreground">Zero-Sum Cancellation</p>
+            </div>
+
+            <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
+              <div className="text-xl mb-1">⚡</div>
+              <p className="text-xs font-semibold">FedAvg Aggregation</p>
+              <p className="text-[10px] text-muted-foreground">Sample-Weighted Avg</p>
+            </div>
+
+            <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
+              <div className="text-xl mb-1">🌐</div>
+              <p className="text-xs font-semibold">Global AI Model</p>
+              <p className="text-[10px] text-muted-foreground">MLP (16 → 8)</p>
+            </div>
+
+            <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
+              <div className="text-xl mb-1">🎯</div>
+              <p className="text-xs font-semibold">Fraud Detection</p>
+              <p className="text-[10px] text-muted-foreground">Live /score Evaluation</p>
+            </div>
+          </div>
+        </section>
+
         {/* Global model status */}
         <section>
           <div className="flex items-center justify-between mb-4">

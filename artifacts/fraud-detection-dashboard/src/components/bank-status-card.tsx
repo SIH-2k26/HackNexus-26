@@ -1,6 +1,6 @@
 import { Building2 } from 'lucide-react';
 import { BankMetrics } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn, formatBankName } from '@/lib/utils';
 
 interface BankStatusCardProps {
   bank: BankMetrics;
@@ -11,6 +11,7 @@ interface BankStatusCardProps {
 export function BankStatusCard({ bank, isTraining, className }: BankStatusCardProps) {
   const recallPercent = (bank.recall * 100).toFixed(1);
   const f1Percent = (bank.f1 * 100).toFixed(1);
+  const bankDisplayName = formatBankName(bank.bankId);
 
   return (
     <div
@@ -28,8 +29,8 @@ export function BankStatusCard({ bank, isTraining, className }: BankStatusCardPr
       <div className="relative">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-muted-foreground" />
-            <h3 className="font-mono font-semibold text-sm">{bank.bankId}</h3>
+            <Building2 className="w-4 h-4 text-primary" />
+            <h3 className="font-semibold text-sm">{bankDisplayName}</h3>
           </div>
           {isTraining && (
             <span className="text-xs font-medium text-primary animate-pulse">Training...</span>
