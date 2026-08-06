@@ -48,11 +48,6 @@ app.include_router(me_router)
 
 from fastapi.responses import FileResponse
 
-@app.get("/landing")
-@app.get("/index.html")
-def get_landing_page():
-    return FileResponse("index.html")
-
 @app.get("/dashboard.html")
 def get_operator_dashboard():
     return FileResponse("dashboard.html")
@@ -60,10 +55,6 @@ def get_operator_dashboard():
 @app.get("/bank_dashboard.html")
 def get_bank_dashboard():
     return FileResponse("bank_dashboard.html")
-
-@app.get("/access_pending.html")
-def get_access_pending():
-    return FileResponse("access_pending.html")
 
 @app.get("/")
 def read_root():
