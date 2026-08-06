@@ -103,6 +103,7 @@
       </label>
       <button id="runTrainBtn" onclick="runTrainRound()">⚡ Run 1 Round</button>
       <button id="resetBtn" class="danger" onclick="resetTrainer()">🔄 Reset</button>
+      <button style="background:#1a2336;border:1px solid #1f293d;" onclick="logoutSession()" title="Log out to Enterprise Landing Page">🚪 Exit</button>
     </div>
   </header>
 
@@ -464,10 +465,15 @@
           document.getElementById('resReason').innerText = 'Failed to score transaction.';
           box.className = 'result-box HIGH';
           showToast("Fraud scoring failed: check key or payload", "error");
-        }
       } finally {
         btn.disabled = false; btn.innerText = "Analyze Risk";
       }
+    }
+
+    function logoutSession() {
+      localStorage.removeItem('vaultic_auth_role');
+      localStorage.removeItem('vaultic_auth_session');
+      window.location.href = 'index.html';
     }
   </script>
 </body>

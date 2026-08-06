@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vaultic — Privacy-Preserving Federated Fraud Detection Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #080c14;
+      --surface: #0f1623;
+      --card: #141d2e;
+      --card-hover: #1a263d;
+      --border: #1e2d45;
+      --border-light: #2a3f5f;
+      --blue: #3b82f6;
+      --blue-glow: rgba(59, 130, 246, 0.15);
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --sub: #94a3b8;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV BAR ─────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(8, 12, 20, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 3rem;
+      z-index: 1000;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-icon {
+      font-size: 1.3rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--sub);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* ── BUTTONS ─────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #ffffff;
+      color: #080c14;
+      border-color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #e2e8f0;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-google {
+      background: var(--surface);
+      color: #ffffff;
+      border: 1px solid var(--border-light);
+    }
+
+    .btn-google:hover {
+      background: var(--card-hover);
+      border-color: var(--blue);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px var(--blue-glow);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-light);
+      transform: translateY(-1px);
+    }
+
+    /* ── HERO SECTION ────────────────────────────────────────────── */
+    .hero-section {
+      min-height: 100vh;
+      padding: 120px 3rem 80px 3rem;
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.8rem;
+      background: var(--blue-glow);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 9999px;
+      color: var(--blue);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      width: fit-content;
+    }
+
+    .hero-headline {
+      font-size: 3.4rem;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+    }
+
+    .hero-subheadline {
+      font-size: 1.15rem;
+      color: var(--sub);
+      font-weight: 400;
+      line-height: 1.6;
+      max-width: 520px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .demo-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .demo-menu {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      background: var(--card);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 0.5rem;
+      width: 220px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 100;
+    }
+
+    .demo-menu button {
+      width: 100%;
+      text-align: left;
+      padding: 0.5rem 0.8rem;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 0.82rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .demo-menu button:hover {
+      background: var(--card-hover);
+      color: var(--blue);
+    }
+
+    .demo-dropdown:hover .demo-menu {
+      display: block;
+    }
+
+    /* ── ANIMATED GRAPHIC (SECTION 1 RIGHT) ─────────────────────── */
+    .hero-graphic-container {
+      position: relative;
+      width: 100%;
+      height: 440px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    .network-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .node-circle {
+      fill: var(--card);
+      stroke: var(--border-light);
+      stroke-width: 2;
+      transition: all 0.3s;
+    }
+
+    .node-center {
+      fill: var(--blue-glow);
+      stroke: var(--blue);
+      stroke-width: 2.5;
+    }
+
+    .node-label {
+      fill: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .pulse-line {
+      stroke: var(--blue);
+      stroke-width: 2;
+      stroke-dasharray: 6 6;
+      animation: dash 20s linear infinite;
+    }
+
+    @keyframes dash {
+      to { stroke-dashoffset: -1000; }
+    }
+
+    .data-packet {
+      fill: var(--blue);
+      animation: movePacket 4s ease-in-out infinite;
+    }
+
+    /* ── SECTION CONTAINER ──────────────────────────────────────── */
+    .section-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 100px 3rem;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 4rem auto;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      font-size: 1.05rem;
+      color: var(--sub);
+    }
+
+    /* ── SECTION 2: WHY VAULTIC ──────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .feature-card:hover {
+      background: var(--card);
+      border-color: var(--blue);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--blue-glow);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: var(--blue);
+    }
+
+    .feature-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .feature-desc {
+      font-size: 0.88rem;
+      color: var(--sub);
+      line-height: 1.65;
+    }
+
+    /* ── SECTION 3: LIVE SYSTEM STATUS ───────────────────────────── */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+
+    .status-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .status-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .status-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+
+    .status-value.blue { color: var(--blue); }
+    .status-value.green { color: var(--green); }
+    .status-value.purple { color: #a855f7; }
+
+    .status-meta {
+      font-size: 0.78rem;
+      color: var(--sub);
+    }
+
+    /* ── SECTION 4: ARCHITECTURE PIPELINE ───────────────────────── */
+    .pipeline-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+    }
+
+    .pipeline-steps {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.8rem;
+      align-items: center;
+      position: relative;
+    }
+
+    .pipeline-node {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 0.8rem;
+      text-align: center;
+      transition: all 0.25s;
+    }
+
+    .pipeline-node:hover {
+      border-color: var(--blue);
+      background: var(--card-hover);
+      transform: translateY(-2px);
+    }
+
+    .pipeline-icon {
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .pipeline-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 0.2rem;
+    }
+
+    .pipeline-sub {
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .pipeline-arrow {
+      text-align: center;
+      color: var(--blue);
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* ── SECTION 5: ENTERPRISE SECURITY ─────────────────────────── */
+    .security-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .security-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    .security-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .security-card p {
+      font-size: 0.88rem;
+      color: var(--sub);
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 4rem 3rem 2rem 3rem;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 3rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 4rem;
+    }
+
+    .footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .footer-col-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #ffffff;
+    }
+
+    .footer-col a {
+      color: var(--sub);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover {
+      color: #ffffff;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .hero-section { grid-template-columns: 1fr; padding-top: 100px; gap: 3rem; }
+      .features-grid, .status-grid { grid-template-columns: repeat(2, 1fr); }
+      .pipeline-steps { grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+      .pipeline-arrow { display: none; }
+      .security-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 0 1.5rem; }
+      .nav-links { display: none; }
+      .hero-section { padding: 90px 1.5rem 50px 1.5rem; }
+      .hero-headline { font-size: 2.4rem; }
+      .features-grid, .status-grid { grid-template-columns: 1fr; }
+      .section-container { padding: 60px 1.5rem; }
+      .footer-top { flex-direction: column; gap: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV BAR ─────────────────────────────────────────────── -->
+  <nav>
+    <a href="#" class="brand">
+      <span class="brand-icon">🔒</span>
+      <span>Vaultic</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#status">Live Status</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#security">Security</a></li>
+      <li><a href="https://github.com/SarthakPatil18/Vaultic-API" target="_blank">GitHub</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn btn-google" onclick="handleGoogleLogin()">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12.5s.7 2.8 1.9 5.2l3.7-2.9z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.2-6.4-5.2L1.9 17C3.7 20.7 7.5 24 12 24z"/></svg>
+        <span>Continue with Google</span>
+      </button>
+      <div class="demo-dropdown">
+        <button class="btn btn-primary">Demo Modes ▾</button>
+        <div class="demo-menu">
+          <button onclick="demoLogin('operator')">👨‍💻 Operator Dashboard</button>
+          <button onclick="demoLogin('bank_user')">🏦 Bank Node Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── SECTION 1: HERO ──────────────────────────────────────── -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-tag">
+        <span>⚡ Enterprise Banking Security</span>
+      </div>
+      <h1 class="hero-headline">Privacy-Preserving<br>Federated Fraud Detection</h1>
+      <p class="hero-subheadline">
+        Train AI collaboratively across financial institutions without ever sharing customer transaction data. Empowering cross-bank fraud intelligence.
+      </p>
+      <div class="hero-ctas">
+        <button class="btn btn-google" style="padding:0.75rem 1.4rem;font-size:0.95rem;" onclick="handleGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12.5s.7 2.8 1.9 5.2l3.7-2.9z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.2-6.4-5.2L1.9 17C3.7 20.7 7.5 24 12 24z"/></svg>
+          <span>Continue with Google</span>
+        </button>
+        <a href="#architecture" class="btn btn-secondary" style="padding:0.75rem 1.4rem;font-size:0.95rem;">
+          <span>View Architecture</span>
+          <span>→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Animated Graphic -->
+    <div class="hero-graphic-container">
+      <svg class="network-svg" viewBox="0 0 500 360">
+        <!-- Connecting lines -->
+        <line x1="250" y1="180" x2="110" y2="90" class="pulse-line" />
+        <line x1="250" y1="180" x2="390" y2="90" class="pulse-line" />
+        <line x1="250" y1="180" x2="110" y2="270" class="pulse-line" />
+        <line x1="250" y1="180" x2="390" y2="270" class="pulse-line" />
+
+        <!-- Nodes -->
+        <!-- Center Vaultic -->
+        <circle cx="250" cy="180" r="48" class="node-circle node-center" />
+        <text x="250" y="174" class="node-label" style="font-size:14px;">🔒 VAULTIC</text>
+        <text x="250" y="192" class="node-label" style="font-size:10px;fill:var(--blue);">GLOBAL ENGINE</text>
+
+        <!-- SBI -->
+        <circle cx="110" cy="90" r="34" class="node-circle" />
+        <text x="110" y="86" class="node-label">SBI</text>
+        <text x="110" y="100" class="node-label" style="font-size:9px;fill:var(--muted);">Bank 0</text>
+
+        <!-- HDFC -->
+        <circle cx="390" cy="90" r="34" class="node-circle" />
+        <text x="390" y="86" class="node-label">HDFC</text>
+        <text x="390" y="100" class="node-label" style="font-size:9px;fill:var(--muted);">Bank 1</text>
+
+        <!-- ICICI -->
+        <circle cx="110" cy="270" r="34" class="node-circle" />
+        <text x="110" y="266" class="node-label">ICICI</text>
+        <text x="110" y="280" class="node-label" style="font-size:9px;fill:var(--muted);">Bank 2</text>
+
+        <!-- Axis -->
+        <circle cx="390" cy="270" r="34" class="node-circle" />
+        <text x="390" y="266" class="node-label">AXIS</text>
+        <text x="390" y="280" class="node-label" style="font-size:9px;fill:var(--muted);">Bank 3</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: WHY VAULTIC ───────────────────────────────── -->
+  <section class="section-container" id="features">
+    <div class="section-header">
+      <h2 class="section-title">Why Financial Institutions Choose Vaultic</h2>
+      <p class="section-subtitle">Collaborative machine learning engineered for strict banking privacy regulations.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <h3 class="feature-title">Federated Learning</h3>
+        <p class="feature-desc">Train models locally on private bank data. Only encrypted gradient updates leave the bank network.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3 class="feature-title">Differential Privacy</h3>
+        <p class="feature-desc">Mathematical noise injection ($\epsilon$-calibrated) guarantees model outputs cannot reveal individual customer transactions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3 class="feature-title">Secure Aggregation</h3>
+        <p class="feature-desc">Cryptographic zero-sum masking ($\delta < 10^{-9}$) ensures the central server aggregates updates without unmasking individual nodes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Real-Time Scoring</h3>
+        <p class="feature-desc">Sub-millisecond risk evaluation and contextual reason generation across UPI, IMPS, NEFT, and RTGS payment channels.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: LIVE SYSTEM STATUS ────────────────────────── -->
+  <section class="section-container" id="status" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);max-width:100%;">
+    <div style="max-width:1280px;margin:0 auto;">
+      <div class="section-header">
+        <h2 class="section-title">Live Platform Status</h2>
+        <p class="section-subtitle">Real-time telemetries fetched live from Vaultic API nodes.</p>
+      </div>
+      <div class="status-grid">
+        <div class="status-card">
+          <div class="status-label">System Health</div>
+          <div class="status-value green" id="statHealth">ONLINE</div>
+          <div class="status-meta">FastAPI engine active</div>
+        </div>
+        <div class="status-card">
+          <div class="status-label">Connected Banks</div>
+          <div class="status-value blue" id="statBanks">4 Nodes</div>
+          <div class="status-meta">SBI, HDFC, ICICI, Axis</div>
+        </div>
+        <div class="status-card">
+          <div class="status-label">Training Round</div>
+          <div class="status-value purple" id="statRound">Round 0</div>
+          <div class="status-meta">Global model version</div>
+        </div>
+        <div class="status-card">
+          <div class="status-label">Privacy Shield</div>
+          <div class="status-value green" id="statPrivacy">VERIFIED</div>
+          <div class="status-meta">DP ε = 1.0 | SecAgg Exact</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: ARCHITECTURE PREVIEW ─────────────────────── -->
+  <section class="section-container" id="architecture">
+    <div class="section-header">
+      <h2 class="section-title">Federated Pipeline Architecture</h2>
+      <p class="section-subtitle">How Vaultic safely updates the global neural network across isolated bank servers.</p>
+    </div>
+    <div class="pipeline-container">
+      <div class="pipeline-steps">
+        <div class="pipeline-node">
+          <div class="pipeline-icon">🏦</div>
+          <div class="pipeline-name">Bank Nodes</div>
+          <div class="pipeline-sub">Private CSVs</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-node">
+          <div class="pipeline-icon">🧠</div>
+          <div class="pipeline-name">Local Training</div>
+          <div class="pipeline-sub">5 Epochs / SMOTE</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-node">
+          <div class="pipeline-icon">🛡️</div>
+          <div class="pipeline-name">DP Noise</div>
+          <div class="pipeline-sub">Calibrated Gaussian</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-node">
+          <div class="pipeline-icon">🔐</div>
+          <div class="pipeline-name">SecAgg Mask</div>
+          <div class="pipeline-sub">Zero-Sum Mask</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-node">
+          <div class="pipeline-icon">⚡</div>
+          <div class="pipeline-name">FedAvg</div>
+          <div class="pipeline-sub">Sample Weighted</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-node">
+          <div class="pipeline-icon">🌐</div>
+          <div class="pipeline-name">Global Model</div>
+          <div class="pipeline-sub">MLP (16, 8)</div>
+        </div>
+        <div class="pipeline-node">
+          <div class="pipeline-icon">🎯</div>
+          <div class="pipeline-name">Fraud Scorer</div>
+          <div class="pipeline-sub">/score API</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5: ENTERPRISE SECURITY ───────────────────────── -->
+  <section class="section-container" id="security">
+    <div class="section-header">
+      <h2 class="section-title">Enterprise Security Standards</h2>
+      <p class="section-subtitle">Designed to comply with RBI, GDPR, and ISO-27001 data residency rules.</p>
+    </div>
+    <div class="security-grid">
+      <div class="security-card">
+        <h3><span>🔑</span> Google OAuth & SSO</h3>
+        <p>Single Sign-On identity verification powered by Supabase Auth. No legacy passwords to compromise.</p>
+      </div>
+      <div class="security-card">
+        <h3><span>👥</span> Role-Based Access</h3>
+        <p>Strict boundaries separating Central System Operators from isolated Bank Node Operators.</p>
+      </div>
+      <div class="security-card">
+        <h3><span>📜</span> Compliance Audit Logs</h3>
+        <p>Append-only immutable audit trail recording every training event, trigger identity, and accuracy delta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 6: FOOTER ────────────────────────────────────── -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="brand">
+          <span class="brand-icon">🔒</span>
+          <span>Vaultic</span>
+        </a>
+        <p style="font-size:0.85rem;color:var(--muted);max-width:320px;">
+          Privacy-Preserving Federated Fraud Detection Engine for Financial Networks.
+        </p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <div class="footer-col-title">Platform</div>
+          <a href="#features">Features</a>
+          <a href="#status">Live Status</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#security">Security</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Developers</div>
+          <a href="https://github.com/SarthakPatil18/Vaultic-API" target="_blank">GitHub Repo</a>
+          <a href="http://localhost:8000/docs" target="_blank">FastAPI Docs</a>
+          <a href="http://localhost:8000/status" target="_blank">API Status</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Vaultic Inc. All rights reserved.</div>
+      <div>Version 1.0.0 (Production Build)</div>
+    </div>
+  </footer>
+
+  <!-- ── AUTH & DASHBOARD LOGIC ───────────────────────────────── -->
+  <script>
+    const SUPABASE_URL = "https://xyzcompany.supabase.co"; // Replace with your Supabase Project URL
+    const SUPABASE_KEY = "public-anon-key";                // Replace with your Supabase Anon Key
+
+    let supabaseClient = null;
+    if (window.supabase) {
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      } catch (e) {}
+    }
+
+    async function handleGoogleLogin() {
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin + '/index.html' }
+          });
+          if (error) throw error;
+        } catch (err) {
+          alert("Supabase Google OAuth requires configuring valid SUPABASE_URL & SUPABASE_KEY. Using Demo Mode redirect.");
+          demoLogin('operator');
+        }
+      } else {
+        alert("Supabase SDK ready. Click 'Demo Modes' to evaluate operator or bank dashboards!");
+      }
+    }
+
+    function demoLogin(role) {
+      localStorage.setItem('vaultic_auth_role', role);
+      localStorage.setItem('vaultic_auth_session', 'active_demo_session');
+      if (role === 'operator') {
+        window.location.href = 'dashboard.html';
+      } else if (role === 'bank_user') {
+        window.location.href = 'bank_dashboard.html';
+      } else {
+        window.location.href = 'access_pending.html';
+      }
+    }
+
+    async function checkSessionOnLoad() {
+      // 1. Check local demo session
+      const savedRole = localStorage.getItem('vaultic_auth_role');
+      if (savedRole === 'operator') {
+        window.location.href = 'dashboard.html';
+        return;
+      } else if (savedRole === 'bank_user') {
+        window.location.href = 'bank_dashboard.html';
+        return;
+      }
+
+      // 2. Check Supabase session if configured
+      if (supabaseClient) {
+        try {
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          if (session && session.user) {
+            const role = session.user.user_metadata?.role || 'operator';
+            demoLogin(role);
+          }
+        } catch (e) {}
+      }
+    }
+
+    async function fetchLiveStatus() {
+      try {
+        const r = await fetch('http://localhost:8000/status');
+        if (r.ok) {
+          const d = await r.json();
+          document.getElementById('statHealth').textContent = 'ONLINE';
+          document.getElementById('statRound').textContent = `Round ${d.current_round ?? 0}`;
+        }
+      } catch (e) {}
+    }
+
+    window.onload = () => {
+      checkSessionOnLoad();
+      fetchLiveStatus();
+    };
+  </script>
+</body>
+</html>

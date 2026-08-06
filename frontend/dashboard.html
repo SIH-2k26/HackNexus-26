@@ -285,7 +285,8 @@
       </div>
       <button class="btn btn-ghost btn-sm" id="wakeBtn" onclick="wakeServer()">☀️ Wake</button>
       <button class="btn btn-primary btn-sm" id="runRoundBtn" onclick="runTrainRound()">⚡ Run Round</button>
-      <button class="btn btn-danger btn-sm" id="resetBtn" onclick="resetTrainer()">🔄 Reset</button>
+      <button class="btn btn-ghost btn-sm" id="resetBtn" onclick="resetTrainer()">🔄 Reset</button>
+      <button class="btn btn-ghost btn-sm" onclick="logoutSession()" title="Log out to Enterprise Landing Page">🚪 Exit</button>
       <div style="display:flex;align-items:center;gap:0.4rem;">
         <div class="status-dot" id="statusDot"></div>
         <span id="serverStatus">checking…</span>
@@ -1073,6 +1074,12 @@
           <div style="font-size:0.68rem;color:var(--muted);">${q.time}</div>
         </div>
       `).join('');
+    }
+
+    function logoutSession() {
+      localStorage.removeItem('vaultic_auth_role');
+      localStorage.removeItem('vaultic_auth_session');
+      window.location.href = 'index.html';
     }
 
     // ── Init ───────────────────────────────────────────────────────

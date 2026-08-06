@@ -624,9 +624,10 @@
       <h1 class="brand-title">VAULTIC</h1>
       <span class="brand-subtitle">Bank Console</span>
     </div>
-    <div class="header-status">
+    <div class="header-status" style="gap:0.8rem;">
       <span class="status-dot"></span>
       <span id="headerStatusText">Connected</span>
+      <button style="background:var(--card-hi);border:1px solid var(--border);color:var(--text);padding:0.25rem 0.6rem;border-radius:6px;font-size:0.75rem;cursor:pointer;" onclick="logoutSession()" title="Log out to Enterprise Landing Page">🚪 Exit</button>
     </div>
   </header>
 
@@ -1224,6 +1225,12 @@
 
     function revokeKey() {
       alert('Access Revocation Restriction: Only Vaultic network operators can revoke institution credentials. Please contact security@vaultic.io or system administration to revoke bank access.');
+    }
+
+    function logoutSession() {
+      localStorage.removeItem('vaultic_auth_role');
+      localStorage.removeItem('vaultic_auth_session');
+      window.location.href = 'index.html';
     }
   </script>
 </body>
