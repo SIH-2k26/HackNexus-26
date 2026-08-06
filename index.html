@@ -606,6 +606,7 @@
         <div class="demo-menu">
           <button onclick="demoLogin('operator')">👨‍💻 Operator Dashboard</button>
           <button onclick="demoLogin('bank_user')">🏦 Bank Node Dashboard</button>
+          <button onclick="configureSupabaseKeys()" style="border-top:1px solid rgba(255,255,255,0.1);margin-top:4px;padding-top:6px;">⚙️ Configure Supabase Keys</button>
         </div>
       </div>
     </div>
@@ -848,17 +849,38 @@
 
   <!-- ── AUTH & LOGIC SCRIPT ────────────────────────────────────── -->
   <script>
-    const SUPABASE_URL = "https://xyzcompany.supabase.co";
-    const SUPABASE_KEY = "public-anon-key";
+    // Configurable Supabase credentials (reads from localStorage or fallback defaults)
+    let SUPABASE_URL = localStorage.getItem('vaultic_supabase_url') || "https://xyzcompany.supabase.co";
+    let SUPABASE_KEY = localStorage.getItem('vaultic_supabase_key') || "public-anon-key";
 
     let supabaseClient = null;
-    if (window.supabase) {
-      try {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      } catch (e) {}
+    function initSupabase() {
+      if (window.supabase && SUPABASE_URL.startsWith('http') && !SUPABASE_URL.includes('xyzcompany')) {
+        try {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (e) {}
+      }
+    }
+    initSupabase();
+
+    function configureSupabaseKeys() {
+      const url = prompt("Enter your Supabase Project URL (e.g. https://your-project.supabase.co):", SUPABASE_URL);
+      if (!url) return;
+      const key = prompt("Enter your Supabase Public Anon Key:", SUPABASE_KEY);
+      if (!key) return;
+
+      localStorage.setItem('vaultic_supabase_url', url.trim());
+      localStorage.setItem('vaultic_supabase_key', key.trim());
+      SUPABASE_URL = url.trim();
+      SUPABASE_KEY = key.trim();
+      initSupabase();
+      alert("Supabase keys saved successfully!");
     }
 
     async function handleGoogleLogin() {
+      if (!supabaseClient) {
+        initSupabase();
+      }
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient.auth.signInWithOAuth({
@@ -867,11 +889,11 @@
           });
           if (error) throw error;
         } catch (err) {
-          alert("Supabase Google OAuth requires configuring valid SUPABASE_URL & SUPABASE_KEY. Using Demo Mode redirect.");
+          alert("Supabase OAuth error: " + err.message + "\nRedirecting to Demo Operator Mode.");
           demoLogin('operator');
         }
       } else {
-        alert("Supabase SDK loaded. Use Demo Modes to evaluate operator or bank dashboards!");
+        configureSupabaseKeys();
       }
     }
 
