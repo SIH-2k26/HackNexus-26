@@ -850,12 +850,12 @@
   <!-- ── AUTH & LOGIC SCRIPT ────────────────────────────────────── -->
   <script>
     // Configurable Supabase credentials (reads from localStorage or fallback defaults)
-    let SUPABASE_URL = localStorage.getItem('vaultic_supabase_url') || "https://xyzcompany.supabase.co";
+    let SUPABASE_URL = localStorage.getItem('vaultic_supabase_url') || "https://jgtcwohlbfzqezztyvjp.supabase.co";
     let SUPABASE_KEY = localStorage.getItem('vaultic_supabase_key') || "public-anon-key";
 
     let supabaseClient = null;
     function initSupabase() {
-      if (window.supabase && SUPABASE_URL.startsWith('http') && !SUPABASE_URL.includes('xyzcompany')) {
+      if (window.supabase && SUPABASE_URL.startsWith('http')) {
         try {
           supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         } catch (e) {}
