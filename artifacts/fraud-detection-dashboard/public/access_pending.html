@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vaultic — Access Pending</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080c14;
+      --surface: #0f1623;
+      --card: #141d2e;
+      --border: #1e2d45;
+      --blue: #3b82f6;
+      --text: #f1f5f9;
+      --sub: #94a3b8;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .icon { font-size: 3rem; margin-bottom: 1rem; }
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff; }
+    p { font-size: 0.9rem; color: var(--sub); line-height: 1.5; margin-bottom: 1.5rem; }
+    .btn {
+      display: inline-block;
+      background: var(--blue);
+      color: #fff;
+      padding: 0.65rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #2563eb; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">⏳</div>
+    <h1>Access Pending Review</h1>
+    <p>Your authenticated Google account has been registered. An enterprise administrator must assign your role (Operator or Bank Node User) before dashboard access is granted.</p>
+    <a href="index.html" onclick="logout()" class="btn">Return to Landing Page</a>
+  </div>
+  <script>
+    function logout() {
+      localStorage.removeItem('vaultic_auth_role');
+      localStorage.removeItem('vaultic_auth_session');
+    }
+  </script>
+</body>
+</html>
