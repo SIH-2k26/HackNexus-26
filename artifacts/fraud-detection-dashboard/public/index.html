@@ -3,50 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vaultic — Privacy-Preserving Federated Fraud Detection</title>
+  <title>Vaultic — The Privacy-Preserving AI Platform Financial Networks Choose</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* ── APPLE WEB DESIGN SPECIFICATION TOKENS ───────────────────── */
+    /* ── APPLE WEB DESIGN TOKENS ─────────────────────────────────── */
     :root {
-      /* Brand & Accent */
       --colors-primary:           #0066cc; /* Action Blue */
       --colors-primary-focus:     #0071e3; /* Focus Ring Blue */
       --colors-primary-on-dark:   #2997ff; /* Sky Link Blue */
 
-      /* Surfaces */
-      --colors-canvas:            #ffffff; /* Pure White */
+      --colors-canvas:            #ffffff; /* Pure White Canvas */
       --colors-canvas-parchment:  #f5f5f7; /* Parchment Off-White */
-      --colors-surface-pearl:     #fafafc; /* Pearl Button Fill */
-      --colors-surface-tile-1:    #080c14; /* Hero Near-Black Tile */
+      --colors-surface-pearl:     #fafafc; /* Pearl Fill */
+      --colors-surface-tile-1:    #080c14; /* Near-Black Tile 1 */
       --colors-surface-tile-2:    #151c2c; /* Secondary Dark Tile */
-      --colors-surface-black:     #000000; /* Pure Black Nav Bar */
+      --colors-surface-black:     #000000; /* Pure Black Top Nav */
 
-      /* Text Colors */
       --colors-ink:               #1d1d1f; /* Near-Black Ink */
-      --colors-body-on-dark:      #ffffff; /* Pure White Copy */
-      --colors-body-muted:        #a1a1a6; /* Muted Copy On Dark */
-      --colors-ink-muted-80:      #333333; /* Dark Utility Copy */
-      --colors-ink-muted-48:      #7a7a7a; /* Fine Print & Legal */
+      --colors-body-on-dark:      #ffffff;
+      --colors-body-muted:        #a1a1a6;
+      --colors-ink-muted-80:      #333333;
+      --colors-ink-muted-48:      #7a7a7a;
 
-      /* Borders & Hairlines */
-      --colors-hairline:          #e2e2e7; /* 1px Store Card Hairline */
-      --colors-divider-soft:      #f0f0f0; /* Soft Capsule Ring */
+      --colors-hairline:          #e2e2e7;
+      --colors-divider-soft:      #f0f0f0;
 
-      /* Typography Stack (SF Pro with Inter fallback) */
       --font-display: 'SF Pro Display', system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
       --font-body:    'SF Pro Text', system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
       --font-mono:    'JetBrains Mono', monospace;
 
-      /* Shapes & Border Radius */
       --rounded-none: 0px;
       --rounded-sm:   8px;
       --rounded-md:   11px;
       --rounded-lg:   18px;
       --rounded-pill: 9999px;
 
-      /* Universal Product Image Shadow (Only shadow allowed in system) */
       --shadow-product: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
     }
 
@@ -65,8 +58,7 @@
       overflow-x: hidden;
     }
 
-    /* ── TOP NAVIGATION (TWO-ROW APPLE CHASSIS) ──────────────────── */
-    /* Row 1: Global Nav (Pure Black #000000, 44px) */
+    /* ── TWO-ROW NAV CHASSIS ─────────────────────────────────────── */
     .global-nav {
       position: fixed;
       top: 0;
@@ -109,18 +101,15 @@
       transition: color 0.15s;
     }
 
-    .global-nav-links a:hover {
-      color: #ffffff;
-    }
+    .global-nav-links a:hover { color: #ffffff; }
 
-    /* Row 2: Sub-Nav Frosted Glass (52px) */
     .sub-nav-frosted {
       position: fixed;
       top: 44px;
       left: 0;
       right: 0;
       height: 52px;
-      background: rgba(15, 22, 35, 0.8);
+      background: rgba(15, 22, 35, 0.85);
       backdrop-filter: saturate(180%) blur(20px);
       -webkit-backdrop-filter: saturate(180%) blur(20px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -145,7 +134,7 @@
       gap: 0.75rem;
     }
 
-    /* ── APPLE BUTTON GRAMMAR ────────────────────────────────────── */
+    /* ── BUTTON GRAMMAR ─────────────────────────────────────────── */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -161,11 +150,8 @@
       white-space: nowrap;
     }
 
-    .btn:active {
-      transform: scale(0.95); /* Apple universal press micro-interaction */
-    }
+    .btn:active { transform: scale(0.95); }
 
-    /* Signature Action Blue Pill CTA */
     .btn-primary-pill {
       background-color: var(--colors-primary);
       color: #ffffff;
@@ -175,11 +161,8 @@
       font-weight: 400;
     }
 
-    .btn-primary-pill:hover {
-      background-color: var(--colors-primary-focus);
-    }
+    .btn-primary-pill:hover { background-color: var(--colors-primary-focus); }
 
-    /* Secondary Blue Ghost Pill */
     .btn-secondary-pill {
       background-color: transparent;
       color: var(--colors-primary-on-dark);
@@ -190,11 +173,8 @@
       font-weight: 400;
     }
 
-    .btn-secondary-pill:hover {
-      background-color: rgba(41, 151, 255, 0.1);
-    }
+    .btn-secondary-pill:hover { background-color: rgba(41, 151, 255, 0.1); }
 
-    /* Compact Nav Utility Button */
     .btn-utility {
       background-color: #ffffff;
       color: var(--colors-ink);
@@ -204,14 +184,9 @@
       font-weight: 600;
     }
 
-    .btn-utility:hover {
-      background-color: #f0f0f0;
-    }
+    .btn-utility:hover { background-color: #f0f0f0; }
 
-    .demo-dropdown {
-      position: relative;
-      display: inline-block;
-    }
+    .demo-dropdown { position: relative; display: inline-block; }
 
     .demo-menu {
       display: none;
@@ -222,7 +197,7 @@
       border: 1px solid var(--colors-hairline);
       border-radius: var(--rounded-md);
       padding: 0.4rem;
-      width: 210px;
+      width: 220px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       z-index: 2500;
     }
@@ -239,15 +214,10 @@
       cursor: pointer;
     }
 
-    .demo-menu button:hover {
-      background: var(--colors-primary);
-    }
+    .demo-menu button:hover { background: var(--colors-primary); }
+    .demo-dropdown:hover .demo-menu { display: block; }
 
-    .demo-dropdown:hover .demo-menu {
-      display: block;
-    }
-
-    /* ── TILE CANVAS RHYTHM (EDGE-TO-EDGE FULL-BLEED) ───────────── */
+    /* ── TILE CANVAS RHYTHM (FULL BLEED) ────────────────────────── */
     .tile {
       width: 100vw;
       border-radius: var(--rounded-none);
@@ -265,7 +235,7 @@
     .tile-hero {
       background-color: var(--colors-surface-tile-1);
       color: var(--colors-body-on-dark);
-      min-height: 90vh;
+      min-height: 92vh;
       padding-top: 140px;
       display: flex;
       align-items: center;
@@ -273,39 +243,62 @@
 
     .hero-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.1fr 0.9fr;
       gap: 4rem;
       align-items: center;
       width: 100%;
     }
 
-    .hero-eyebrow {
-      font-family: var(--font-display);
-      font-size: 14px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--colors-primary-on-dark);
-      margin-bottom: 0.75rem;
+    /* Status Badges adapted from frontend.supply */
+    .status-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
     }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.75rem;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: var(--rounded-pill);
+      font-size: 13px;
+      font-weight: 500;
+      color: #10b981;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background-color: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     .hero-h1 {
       font-family: var(--font-display);
-      font-size: 56px;
+      font-size: 54px;
       font-weight: 600;
       line-height: 1.07;
-      letter-spacing: -0.028em; /* Signature Apple tight tracking */
+      letter-spacing: -0.028em;
       color: #ffffff;
       margin-bottom: 1.25rem;
     }
 
     .hero-tagline {
-      font-size: 21px;
+      font-size: 20px;
       font-weight: 400;
-      line-height: 1.4;
+      line-height: 1.45;
       color: var(--colors-body-muted);
       margin-bottom: 2rem;
-      max-width: 500px;
+      max-width: 540px;
     }
 
     .hero-ctas {
@@ -317,14 +310,13 @@
 
     .product-render-box {
       background: var(--colors-surface-tile-2);
-      border: 1px solid var(--colors-border-light, #1e2d45);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--rounded-lg);
-      padding: 2.5rem;
-      box-shadow: var(--shadow-product); /* The ONLY drop shadow in the system */
-      position: relative;
+      padding: 2rem;
+      box-shadow: var(--shadow-product);
     }
 
-    /* TILE 2: PARCHMENT TILE (#f5f5f7) — "WHY VAULTIC" */
+    /* TILE 2: PARCHMENT TILE (#f5f5f7) — PILLARS & RELIABILITY */
     .tile-parchment {
       background-color: var(--colors-canvas-parchment);
       color: var(--colors-ink);
@@ -332,8 +324,8 @@
 
     .tile-header {
       text-align: center;
-      max-width: 680px;
-      margin: 0 auto 4rem auto;
+      max-width: 720px;
+      margin: 0 auto 3.5rem auto;
     }
 
     .tile-title {
@@ -346,37 +338,38 @@
       margin-bottom: 0.75rem;
     }
 
-    .tile-subtitle {
-      font-size: 21px;
-      font-weight: 400;
-      color: var(--colors-ink-muted-80);
-    }
+    .tile-title span { color: var(--colors-ink-muted-48); }
 
     .pillars-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.5rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
     }
 
-    /* Store Utility Card Spec: {rounded.lg} 18px radius, white fill, hairline border, NO CARD SHADOW */
     .utility-card {
       background-color: var(--colors-canvas);
       border: 1px solid var(--colors-hairline);
       border-radius: var(--rounded-lg);
-      padding: 24px;
+      padding: 32px 24px;
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
       transition: transform 0.2s ease;
     }
 
-    .utility-card:hover {
-      transform: translateY(-2px);
-    }
+    .utility-card:hover { transform: translateY(-3px); }
 
-    .card-icon {
-      font-size: 24px;
-      margin-bottom: 0.25rem;
+    .card-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(0, 102, 204, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--colors-primary);
+      margin-bottom: 0.5rem;
     }
 
     .card-h3 {
@@ -390,10 +383,10 @@
     .card-p {
       font-size: 15px;
       color: var(--colors-ink-muted-80);
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
-    /* TILE 3: DARK TILE (#151c2c) — "LIVE SYSTEM STATUS" */
+    /* TILE 3: DARK TILE (#151c2c) — LIVE PLATFORM TELEMETRY */
     .tile-dark-2 {
       background-color: var(--colors-surface-tile-2);
       color: var(--colors-body-on-dark);
@@ -434,75 +427,138 @@
     .status-kpi-val.blue { color: var(--colors-primary-on-dark); }
     .status-kpi-val.green { color: #10b981; }
 
-    /* TILE 4: PURE WHITE TILE (#ffffff) — "ARCHITECTURE PIPELINE" */
-    .tile-white {
-      background-color: var(--colors-canvas);
-      color: var(--colors-ink);
-    }
-
-    .pipeline-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .pipeline-step-card {
+    /* TILE 4: TESTIMONIAL QUOTE (Adapted from frontend.supply) */
+    .tile-quote {
       background-color: var(--colors-canvas-parchment);
-      border: 1px solid var(--colors-hairline);
-      border-radius: var(--rounded-md);
-      padding: 16px 10px;
+      border-top: 1px solid var(--colors-hairline);
+      border-bottom: 1px solid var(--colors-hairline);
+      padding: 64px 2rem;
+    }
+
+    .quote-box {
+      max-width: 860px;
+      margin: 0 auto;
       text-align: center;
     }
 
-    .pipeline-step-title {
+    .quote-text {
       font-family: var(--font-display);
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.35;
       color: var(--colors-ink);
-      margin-top: 0.3rem;
+      letter-spacing: -0.015em;
+      margin-bottom: 1.5rem;
     }
 
-    .pipeline-step-sub {
-      font-size: 11px;
+    .quote-author {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--colors-ink);
+    }
+
+    .quote-role {
+      font-size: 14px;
       color: var(--colors-ink-muted-48);
     }
 
-    .pipeline-arrow-icon {
-      text-align: center;
-      color: var(--colors-primary);
-      font-weight: 600;
+    /* TILE 5: DEPLOYMENT TIERS (Adapted from frontend.supply Pricing) */
+    .tile-tiers {
+      background-color: var(--colors-canvas);
+      padding: 80px 2rem;
     }
 
-    /* TILE 5: DARK TILE (#080c14) — "ENTERPRISE SECURITY" */
-    .security-grid {
+    .tiers-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
     }
 
-    .security-dark-card {
-      background-color: var(--colors-surface-tile-2);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .tier-card {
+      background-color: var(--colors-canvas-parchment);
+      border: 1px solid var(--colors-hairline);
       border-radius: var(--rounded-lg);
-      padding: 28px;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
     }
 
-    .security-dark-card h3 {
-      font-family: var(--font-display);
-      font-size: 21px;
-      font-weight: 600;
+    .tier-card.featured {
+      background-color: var(--colors-surface-tile-1);
       color: #ffffff;
-      margin-bottom: 0.5rem;
+      border-color: var(--colors-primary);
     }
 
-    .security-dark-card p {
+    .tier-name {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .tier-sub {
+      font-size: 14px;
+      color: var(--colors-ink-muted-80);
+    }
+    .tier-card.featured .tier-sub { color: var(--colors-body-muted); }
+
+    .tier-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      font-size: 14px;
+    }
+
+    .tier-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* TILE 6: FAQ ACCORDION ("Questions. Answered.") */
+    .tile-faq {
+      background-color: var(--colors-canvas-parchment);
+      padding: 80px 2rem;
+    }
+
+    .faq-stack {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .faq-item {
+      background: var(--colors-canvas);
+      border: 1px solid var(--colors-hairline);
+      border-radius: var(--rounded-md);
+      padding: 1.25rem 1.5rem;
+      cursor: pointer;
+    }
+
+    .faq-q {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--colors-ink);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-a {
       font-size: 15px;
-      color: var(--colors-body-muted);
-      line-height: 1.5;
+      color: var(--colors-ink-muted-80);
+      line-height: 1.55;
+      margin-top: 0.75rem;
+      display: none;
     }
 
-    /* ── APPLE PARCHMENT FOOTER (#f5f5f7) ────────────────────────── */
+    .faq-item.active .faq-a { display: block; }
+
+    /* ── FOOTER (#f5f5f7) ────────────────────────────────────────── */
     footer {
       background-color: var(--colors-canvas-parchment);
       color: var(--colors-ink-muted-80);
@@ -532,7 +588,7 @@
     .footer-links-stack {
       display: flex;
       flex-direction: column;
-      line-height: 2.41; /* Apple's relaxed 2.41 line-height for dense link columns */
+      line-height: 2.41;
     }
 
     .footer-links-stack a {
@@ -541,9 +597,7 @@
       font-size: 17px;
     }
 
-    .footer-links-stack a:hover {
-      color: var(--colors-primary);
-    }
+    .footer-links-stack a:hover { color: var(--colors-primary); }
 
     .footer-legal-row {
       border-top: 1px solid var(--colors-hairline);
@@ -554,12 +608,9 @@
       color: var(--colors-ink-muted-48);
     }
 
-    /* ── RESPONSIVE SPEC ─────────────────────────────────────────── */
     @media (max-width: 1068px) {
       .hero-h1 { font-size: 40px; }
-      .pillars-grid, .status-cards-grid { grid-template-columns: repeat(2, 1fr); }
-      .pipeline-grid { grid-template-columns: repeat(4, 1fr); gap: 1rem; }
-      .pipeline-arrow-icon { display: none; }
+      .pillars-grid, .status-cards-grid, .tiers-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 833px) {
@@ -570,7 +621,7 @@
 
     @media (max-width: 640px) {
       .hero-h1 { font-size: 34px; }
-      .pillars-grid, .status-cards-grid, .security-grid { grid-template-columns: 1fr; }
+      .pillars-grid, .status-cards-grid, .tiers-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -585,8 +636,8 @@
     <ul class="global-nav-links">
       <li><a href="#features">Features</a></li>
       <li><a href="#status">Status</a></li>
-      <li><a href="#architecture">Architecture</a></li>
-      <li><a href="#security">Security</a></li>
+      <li><a href="#tiers">Tiers</a></li>
+      <li><a href="#faq">FAQ</a></li>
       <li><a href="https://github.com/SarthakPatil18/Vaultic-API" target="_blank">GitHub</a></li>
     </ul>
     <div>
@@ -617,22 +668,31 @@
     <div class="tile-inner">
       <div class="hero-grid">
         <div>
-          <div class="hero-eyebrow">Enterprise Financial Intelligence</div>
-          <h1 class="hero-h1">Privacy-Preserving<br>Federated Fraud Detection</h1>
+          <!-- Live Status Badges adapted from frontend.supply -->
+          <div class="status-badge-row">
+            <div class="status-badge">
+              <span class="pulse-dot"></span>
+              <span>Currently active & accepting nodes</span>
+            </div>
+            <div style="font-size:13px;color:var(--colors-primary-on-dark);font-weight:500;">⚡ Sub-millisecond scoring</div>
+          </div>
+
+          <h1 class="hero-h1">The Privacy-Preserving AI Platform<br>Financial Networks Choose</h1>
           <p class="hero-tagline">
-            Train AI collaboratively across financial institutions without ever sharing customer transaction data.
+            An in-house federated fraud engine that leads, not waits. Train AI collaboratively across financial institutions without ever sharing customer transaction data.
           </p>
+
           <div class="hero-ctas">
             <button class="btn btn-primary-pill" onclick="handleGoogleLogin()">
               Continue with Google
             </button>
-            <a href="#architecture" class="btn btn-secondary-pill">
+            <a href="#features" class="btn btn-secondary-pill">
               View Architecture
             </a>
           </div>
         </div>
 
-        <!-- Product Image / Render Box with System Shadow -->
+        <!-- Render Box showing Node Graph -->
         <div class="product-render-box">
           <svg viewBox="0 0 460 300" style="width:100%;height:100%;">
             <line x1="230" y1="150" x2="90" y2="70" stroke="#2997ff" stroke-width="2" stroke-dasharray="4 4" />
@@ -661,45 +721,42 @@
     </div>
   </section>
 
-  <!-- ── TILE 2: PARCHMENT TILE (#f5f5f7) — "WHY VAULTIC" ────────── -->
+  <!-- ── TILE 2: PARCHMENT TILE (#f5f5f7) — "RELIABILITY PILLARS" ──── -->
   <section class="tile tile-parchment" id="features">
     <div class="tile-inner">
       <div class="tile-header">
-        <h2 class="tile-title">Why Financial Institutions Choose Vaultic</h2>
-        <p class="tile-subtitle">Collaborative machine learning engineered for strict banking privacy regulations.</p>
+        <h2 class="tile-title"><span>Bank-Grade Reliability.</span> Zero Data Exposure.</h2>
+        <p style="font-size:18px;color:var(--colors-ink-muted-80);margin-top:8px;">Continuous cross-institutional fraud detection engineered for strict RBI & GDPR compliance.</p>
       </div>
 
       <div class="pillars-grid">
         <div class="utility-card">
-          <div class="card-icon">🤝</div>
-          <h3 class="card-h3">Federated Learning</h3>
-          <p class="card-p">Train models locally on private bank data. Only encrypted gradient updates leave the bank network.</p>
+          <div class="card-icon-wrap">🛡️</div>
+          <h3 class="card-h3">Skip the privacy risk.</h3>
+          <p class="card-p">Traditional AI requires pooling raw transactions. Vaultic keeps customer data on local bank servers while training the global model.</p>
         </div>
+
         <div class="utility-card">
-          <div class="card-icon">🛡️</div>
-          <h3 class="card-h3">Differential Privacy</h3>
-          <p class="card-p">Mathematical noise injection ($\epsilon$-calibrated) guarantees model outputs cannot reveal individual customer transactions.</p>
+          <div class="card-icon-wrap">🔐</div>
+          <h3 class="card-h3">Zero friction SecAgg.</h3>
+          <p class="card-p">Cryptographic zero-sum masks ($\delta < 10^{-9}$) and Gaussian noise ($\epsilon=1.0$) guarantee updates cannot reveal individual accounts.</p>
         </div>
+
         <div class="utility-card">
-          <div class="card-icon">🔐</div>
-          <h3 class="card-h3">Secure Aggregation</h3>
-          <p class="card-p">Cryptographic zero-sum masking ($\delta < 10^{-9}$) ensures the central server aggregates updates without unmasking individual nodes.</p>
-        </div>
-        <div class="utility-card">
-          <div class="card-icon">⚡</div>
-          <h3 class="card-h3">Real-Time Scoring</h3>
-          <p class="card-p">Sub-millisecond risk evaluation and contextual reason generation across UPI, IMPS, NEFT, and RTGS payment channels.</p>
+          <div class="card-icon-wrap">⚡</div>
+          <h3 class="card-h3">Autonomous Intelligence.</h3>
+          <p class="card-p">FedAvg automatically aggregates local gradients across connected institutions, updating global MLP neural weights seamlessly.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── TILE 3: DARK TILE (#151c2c) — "LIVE SYSTEM STATUS" ───────── -->
+  <!-- ── TILE 3: DARK TILE (#151c2c) — LIVE PLATFORM STATUS ───────── -->
   <section class="tile tile-dark-2" id="status">
     <div class="tile-inner">
       <div class="tile-header">
-        <h2 class="tile-title" style="color:#ffffff;">Live Platform Status</h2>
-        <p class="tile-subtitle" style="color:var(--colors-body-muted);">Real-time telemetries fetched live from Vaultic API nodes.</p>
+        <h2 class="tile-title" style="color:#ffffff;">Live Platform Telemetry</h2>
+        <p style="font-size:18px;color:var(--colors-body-muted);margin-top:8px;">Real-time metrics fetched directly from Vaultic API nodes.</p>
       </div>
 
       <div class="status-cards-grid">
@@ -727,80 +784,114 @@
     </div>
   </section>
 
-  <!-- ── TILE 4: PURE WHITE TILE (#ffffff) — "ARCHITECTURE PIPELINE" -->
-  <section class="tile tile-white" id="architecture">
+  <!-- ── TILE 4: TESTIMONIAL QUOTE (Adapted from frontend.supply) ─── -->
+  <section class="tile tile-quote">
+    <div class="quote-box">
+      <p class="quote-text">
+        “We started with a single node integration, but it worked so well that we expanded across our entire network. Vaultic caught cross-bank mule fraud with zero PII exposure.”
+      </p>
+      <div class="quote-author">Chief Risk & Security Officer</div>
+      <div class="quote-role">Leading Enterprise Banking Consortium</div>
+    </div>
+  </section>
+
+  <!-- ── TILE 5: DEPLOYMENT TIERS ("Zero commitment. Non-stop momentum.") -->
+  <section class="tile tile-tiers" id="tiers">
     <div class="tile-inner">
       <div class="tile-header">
-        <h2 class="tile-title">Federated Pipeline Architecture</h2>
-        <p class="tile-subtitle">How Vaultic safely updates the global neural network across isolated bank servers.</p>
+        <h2 class="tile-title"><span>Zero commitment.</span> Non-stop momentum.</h2>
+        <p style="font-size:18px;color:var(--colors-ink-muted-80);margin-top:8px;">Flexible deployment options built for financial institutions of any size.</p>
       </div>
 
-      <div class="pipeline-grid">
-        <div class="pipeline-step-card">
-          <div style="font-size:20px;">🏦</div>
-          <div class="pipeline-step-title">Bank Nodes</div>
-          <div class="pipeline-step-sub">Private Data</div>
+      <div class="tiers-grid">
+        <div class="tier-card">
+          <div class="tier-name">Standard Node</div>
+          <div class="tier-sub">Regional banks & credit unions.</div>
+          <ul class="tier-features">
+            <li>✓ Local ML Training</li>
+            <li>✓ FedAvg Global Updates</li>
+            <li>✓ Standard Differential Privacy</li>
+            <li>✓ REST & OpenAPI access</li>
+          </ul>
         </div>
-        <div class="pipeline-arrow-icon">→</div>
-        <div class="pipeline-step-card">
-          <div style="font-size:20px;">🧠</div>
-          <div class="pipeline-step-title">Local Training</div>
-          <div class="pipeline-step-sub">5 Epochs / SMOTE</div>
+
+        <div class="tier-card featured">
+          <div class="tier-name">Enterprise Node</div>
+          <div class="tier-sub">National banking institutions.</div>
+          <ul class="tier-features">
+            <li>✓ $\epsilon$-Calibrated Gaussian DP</li>
+            <li>✓ Cryptographic SecAgg ($\delta < 10^{-9}$)</li>
+            <li>✓ Sub-millisecond /score API</li>
+            <li>✓ Real-Time Fraud Reason Extraction</li>
+          </ul>
         </div>
-        <div class="pipeline-arrow-icon">→</div>
-        <div class="pipeline-step-card">
-          <div style="font-size:20px;">🛡️</div>
-          <div class="pipeline-step-title">DP Noise</div>
-          <div class="pipeline-step-sub">Calibrated Noise</div>
-        </div>
-        <div class="pipeline-arrow-icon">→</div>
-        <div class="pipeline-step-card">
-          <div style="font-size:20px;">🔐</div>
-          <div class="pipeline-step-title">SecAgg Mask</div>
-          <div class="pipeline-step-sub">Zero-Sum Mask</div>
-        </div>
-        <div class="pipeline-arrow-icon">→</div>
-        <div class="pipeline-step-card">
-          <div style="font-size:20px;">⚡</div>
-          <div class="pipeline-step-title">FedAvg</div>
-          <div class="pipeline-step-sub">Weighted Avg</div>
-        </div>
-        <div class="pipeline-arrow-icon">→</div>
-        <div class="pipeline-step-card">
-          <div style="font-size:20px;">🎯</div>
-          <div class="pipeline-step-title">Fraud Scorer</div>
-          <div class="pipeline-step-sub">/score API</div>
+
+        <div class="tier-card">
+          <div class="tier-name">Custom Core</div>
+          <div class="tier-sub">On-Premise & Hybrid Cloud.</div>
+          <ul class="tier-features">
+            <li>✓ Isolated On-Prem Orchestration</li>
+            <li>✓ Custom Neural Architecture</li>
+            <li>✓ Dedicated Audit Logging</li>
+            <li>✓ 24/7 SLA Guarantee</li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── TILE 5: DARK TILE (#080c14) — "ENTERPRISE SECURITY" ──────── -->
-  <section class="tile tile-hero" id="security" style="min-height:auto;">
+  <!-- ── TILE 6: FAQ ACCORDION ("Questions. Answered.") ────────────── -->
+  <section class="tile tile-faq" id="faq">
     <div class="tile-inner">
       <div class="tile-header">
-        <h2 class="tile-title" style="color:#ffffff;">Enterprise Security Standards</h2>
-        <p class="tile-subtitle" style="color:var(--colors-body-muted);">Designed to comply with RBI, GDPR, and ISO-27001 data residency rules.</p>
+        <h2 class="tile-title"><span>Questions.</span> Answered.</h2>
       </div>
 
-      <div class="security-grid">
-        <div class="security-dark-card">
-          <h3>🔑 Google OAuth & SSO</h3>
-          <p>Single Sign-On identity verification powered by Supabase Auth. No legacy passwords to compromise.</p>
+      <div class="faq-stack">
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            <span>Who's behind Vaultic Platform?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-a">
+            Vaultic is engineered as a privacy-first federated learning platform specifically designed for enterprise financial networks. It allows banks to collaboratively train fraud prevention models without sharing raw customer data.
+          </div>
         </div>
-        <div class="security-dark-card">
-          <h3>👥 Role-Based Access</h3>
-          <p>Strict boundaries separating Central System Operators from isolated Bank Node Operators.</p>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            <span>How does Federated Learning protect customer privacy?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-a">
+            Raw transaction logs never leave the bank's local firewall. Training happens locally on bank servers, and only encrypted model weight updates (gradients) are transmitted to the global engine.
+          </div>
         </div>
-        <div class="security-dark-card">
-          <h3>📜 Compliance Audit Logs</h3>
-          <p>Append-only immutable audit trail recording every training event, trigger identity, and accuracy delta.</p>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            <span>What is Differential Privacy ($\epsilon$-calibrated noise)?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-a">
+            Differential Privacy adds mathematically calibrated Gaussian noise to model weights ($\epsilon=1.0$), ensuring that no individual customer or transaction can be reverse-engineered from global model parameters.
+          </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            <span>How does Secure Aggregation guarantee zero eavesdropping?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-a">
+            Secure Aggregation uses zero-sum cryptographic masks ($\sum M_k - \sum R_k = \sum W_k$). When individual masks are added together at the central server, they perfectly cancel out ($\delta < 10^{-9}$), revealing only the aggregate model without exposing any single bank's raw weights.
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── TILE 6: APPLE PARCHMENT FOOTER (#f5f5f7) ────────────────── -->
+  <!-- ── FOOTER (#f5f5f7) ────────────────────────────────────────── -->
   <footer>
     <div class="footer-inner">
       <div class="footer-grid">
@@ -816,8 +907,8 @@
           <div class="footer-links-stack">
             <a href="#features">Features</a>
             <a href="#status">Live Status</a>
-            <a href="#architecture">Architecture</a>
-            <a href="#security">Security</a>
+            <a href="#tiers">Tiers</a>
+            <a href="#faq">FAQ</a>
           </div>
         </div>
 
@@ -849,7 +940,7 @@
 
   <!-- ── AUTH & LOGIC SCRIPT ────────────────────────────────────── -->
   <script>
-    // Configurable Supabase credentials (reads from localStorage or fallback defaults)
+    // Configurable Supabase credentials
     let SUPABASE_URL = localStorage.getItem('vaultic_supabase_url') || "https://jgtcwohlbfzqezztyvjp.supabase.co";
     let SUPABASE_KEY = localStorage.getItem('vaultic_supabase_key') || "sb_publishable_dXTxmEX3TjASlFnnLRwQlg_d4w2GTcg";
 
@@ -878,9 +969,7 @@
     }
 
     async function handleGoogleLogin() {
-      if (!supabaseClient) {
-        initSupabase();
-      }
+      if (!supabaseClient) initSupabase();
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient.auth.signInWithOAuth({
@@ -939,6 +1028,10 @@
           document.getElementById('statRound').textContent = `Round ${d.current_round ?? 0}`;
         }
       } catch (e) {}
+    }
+
+    function toggleFaq(el) {
+      el.classList.toggle('active');
     }
 
     window.onload = () => {
