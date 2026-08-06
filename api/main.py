@@ -46,16 +46,6 @@ app.include_router(admin_router)
 app.include_router(audit_router)
 app.include_router(me_router)
 
-from fastapi.responses import FileResponse
-
-@app.get("/dashboard.html")
-def get_operator_dashboard():
-    return FileResponse("dashboard.html")
-
-@app.get("/bank_dashboard.html")
-def get_bank_dashboard():
-    return FileResponse("bank_dashboard.html")
-
 @app.get("/")
 def read_root():
     return {
