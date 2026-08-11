@@ -22,7 +22,7 @@ export function Layout({ children }: LayoutProps) {
     localStorage.removeItem('vaultic_auth_role');
     localStorage.removeItem('vaultic_auth_session');
     setShowProfileMenu(false);
-    alert('Logged out from Vaultic Operator Session');
+    alert('Logged out from Vaultic Admin Session');
   };
 
   return (
@@ -94,11 +94,11 @@ export function Layout({ children }: LayoutProps) {
               className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-accent/50 transition-all border border-border/50 text-left cursor-pointer"
             >
               <div className="w-7 h-7 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center font-bold text-xs">
-                OP
+                AD
               </div>
               <div className="hidden sm:block">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-semibold">Operator</span>
+                  <span className="text-xs font-semibold">Admin</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-chart-2" />
                 </div>
                 <span className="text-[10px] text-muted-foreground block -mt-0.5">Online</span>
@@ -109,8 +109,8 @@ export function Layout({ children }: LayoutProps) {
             {showProfileMenu && (
               <div className="absolute right-0 mt-2 w-52 bg-card border border-border rounded-xl shadow-xl p-1.5 z-50">
                 <div className="px-3 py-2 border-b border-border/50 mb-1">
-                  <p className="text-xs font-semibold text-foreground">Operator Administrator</p>
-                  <p className="text-[11px] text-muted-foreground">operator@vaultic.io</p>
+                  <p className="text-xs font-semibold text-foreground">System Administrator</p>
+                  <p className="text-[11px] text-muted-foreground">admin@vaultic.io</p>
                 </div>
                 <button
                   onClick={() => { setShowProfileMenu(false); }}
