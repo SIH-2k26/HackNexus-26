@@ -14,7 +14,6 @@ export function Layout({ children }: LayoutProps) {
   const navItems = [
     { path: '/', label: 'Command Center', icon: Activity },
     { path: '/banks', label: 'Bank Network', icon: Database },
-    { path: '/checker', label: 'Fraud Checker', icon: Shield },
     { path: '/settings', label: 'System Config', icon: Settings },
   ];
 
