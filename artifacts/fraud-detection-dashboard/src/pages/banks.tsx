@@ -26,7 +26,7 @@ export default function Banks() {
             <h1 className="text-2xl font-bold tracking-tight">Bank Network Overview</h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            Decentralized fraud detection across SBI, HDFC, ICICI, and Axis Bank
+            Decentralized fraud detection across Bank 0, Bank 1, Bank 2, and Bank 3
           </p>
         </div>
       </div>

@@ -137,7 +137,7 @@ export default function Settings() {
                 <Database className="w-3.5 h-3.5 text-primary" />
               </div>
               <p className="text-lg font-semibold font-mono text-foreground">{banks.length}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">SBI, HDFC, ICICI, Axis</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Bank 0, 1, 2, 3</p>
             </div>
           </div>
         </section>
@@ -177,7 +177,7 @@ export default function Settings() {
             <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
               <p className="text-sm text-muted-foreground mb-1">Participating Institutions</p>
               <p className="text-2xl font-bold font-mono">4</p>
-              <p className="text-xs text-muted-foreground mt-1">SBI, HDFC, ICICI, Axis Bank</p>
+              <p className="text-xs text-muted-foreground mt-1">Bank 0 through Bank 3</p>
             </div>
 
             <div className="bg-muted/30 rounded-lg p-4 border border-border/50">

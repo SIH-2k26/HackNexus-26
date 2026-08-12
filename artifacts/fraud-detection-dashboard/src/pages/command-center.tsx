@@ -30,7 +30,7 @@ export default function CommandCenter() {
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Command Center</h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Privacy-preserving fraud detection across SBI, HDFC, ICICI, and Axis Bank
+                Privacy-preserving fraud detection across Bank 0, Bank 1, Bank 2, and Bank 3
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -67,7 +67,7 @@ export default function CommandCenter() {
             <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
               <div className="text-xl mb-1">🏦</div>
               <p className="text-xs font-semibold">Participating Banks</p>
-              <p className="text-[10px] text-muted-foreground">SBI, HDFC, ICICI, Axis</p>
+              <p className="text-[10px] text-muted-foreground">Bank 0, 1, 2, 3</p>
             </div>
 
             <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
