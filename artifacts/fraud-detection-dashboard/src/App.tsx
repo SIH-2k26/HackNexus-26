@@ -7,6 +7,8 @@ import { Layout } from '@/components/layout';
 import { FederatedLearningProvider } from '@/lib/federated-learning-provider';
 import CommandCenter from '@/pages/command-center';
 import Banks from '@/pages/banks';
+import GlobalModel from '@/pages/global-model';
+import Audit from '@/pages/audit';
 import Settings from '@/pages/settings';
 
 const queryClient = new QueryClient();
@@ -17,6 +19,8 @@ function Router() {
       <Switch>
         <Route path="/" component={CommandCenter} />
         <Route path="/banks" component={Banks} />
+        <Route path="/global-model" component={GlobalModel} />
+        <Route path="/audit" component={Audit} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>

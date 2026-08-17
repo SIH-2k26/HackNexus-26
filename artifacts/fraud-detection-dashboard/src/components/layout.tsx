@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Activity, Database, Shield, Settings, User, LogOut, ChevronDown } from 'lucide-react';
+import { Activity, Database, Brain, ShieldCheck, Shield, Settings, User, LogOut, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LayoutProps {
@@ -14,6 +14,8 @@ export function Layout({ children }: LayoutProps) {
   const navItems = [
     { path: '/', label: 'Command Center', icon: Activity },
     { path: '/banks', label: 'Bank Network', icon: Database },
+    { path: '/global-model', label: 'Global Model', icon: Brain },
+    { path: '/audit', label: 'Audit', icon: ShieldCheck },
     { path: '/settings', label: 'System Config', icon: Settings },
   ];
 
