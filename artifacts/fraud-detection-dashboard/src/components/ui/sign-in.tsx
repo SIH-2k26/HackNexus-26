@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // Google icon SVG
 const GoogleIcon = () => (
@@ -61,13 +62,22 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   const [showApiKey, setShowApiKey] = useState(false);
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="min-h-[100dvh] flex flex-col md:flex-row w-full"
       style={{ fontFamily: "'Outfit', sans-serif" }}
     >
       {/* ── LEFT: Sign-in form ── */}
       <section className="flex-1 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-md">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.45, delay: 0.1 }}
+          className="w-full max-w-md"
+        >
           <div className="flex flex-col gap-5">
             {/* Logo & Brand */}
             <div className="flex items-center gap-2.5 mb-2">
@@ -138,7 +148,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-3 flex items-center"
+                      className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
                     >
                       {showPassword
                         ? <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
@@ -153,7 +163,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5" style={{ color: '#2563eb' }}>
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
-                  Vaultic API Key <span className="text-[10px] text-muted-foreground font-normal normal-case tracking-normal">(required every login)</span>
+                  Vaultic API Key
                 </label>
                 <GlassInputWrapper>
                   <div className="relative">
@@ -161,7 +171,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                       id="signin-apikey"
                       name="apiKey"
                       type={showApiKey ? 'text' : 'password'}
-                      placeholder="demo-key-12345 or vlt_..."
+                      placeholder="Enter your API Key"
                       className="w-full bg-transparent font-mono text-sm p-4 pr-12 rounded-2xl focus:outline-none text-foreground placeholder:text-muted-foreground/60"
                       required
                       data-testid="input-api-key"
@@ -170,7 +180,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowApiKey(!showApiKey)}
-                      className="absolute inset-y-0 right-3 flex items-center"
+                      className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
                     >
                       {showApiKey
                         ? <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
@@ -179,9 +189,6 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                     </button>
                   </div>
                 </GlassInputWrapper>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  Enter <code className="bg-muted px-1 py-0.5 rounded font-mono text-[10px]">demo-key-12345</code> for Operator access, or a registered bank key for Bank Node access.
-                </p>
               </div>
 
               {/* Remember me + Reset password */}
@@ -197,7 +204,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 <button
                   type="button"
                   onClick={onResetPassword}
-                  className="text-xs font-medium transition-colors"
+                  className="text-xs font-medium transition-colors cursor-pointer"
                   style={{ color: '#2563eb' }}
                 >
                   Reset password
@@ -205,15 +212,17 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               </div>
 
               {/* Submit */}
-              <button
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-2xl py-4 font-semibold text-sm transition-all hover:brightness-110 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-2xl py-4 font-semibold text-sm transition-all hover:brightness-110 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer shadow-md"
                 style={{ backgroundColor: '#2563eb', color: '#ffffff', fontFamily: "'Outfit', sans-serif" }}
                 data-testid="button-submit-auth"
               >
                 {loading ? 'Authenticating…' : 'Sign In to Vaultic'}
-              </button>
+              </motion.button>
             </form>
 
             {/* Divider */}
@@ -228,7 +237,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
             <button
               type="button"
               onClick={onGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-3.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
+              className="w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-3.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer"
             >
               <GoogleIcon />
               Continue with Google
@@ -240,14 +249,14 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               <button
                 type="button"
                 onClick={onCreateAccount}
-                className="font-semibold transition-colors hover:underline"
+                className="font-semibold transition-colors hover:underline cursor-pointer"
                 style={{ color: '#2563eb' }}
               >
                 Request Access
               </button>
             </p>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ── RIGHT: Hero image panel ── */}
@@ -264,12 +273,18 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               <img
                 src={heroImageSrc}
                 alt="Vaultic Federated Network"
-                className="w-full max-w-md object-contain drop-shadow-2xl"
-                style={{ mixBlendMode: 'lighten' }}
+                className="w-full max-w-md object-contain drop-shadow-2xl float-slow blend-blue"
               />
               <h2
                 className="mt-6 text-3xl xl:text-4xl leading-tight max-w-sm"
-                style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 100, letterSpacing: '-2.5px', color: '#101828' }}
+                style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontWeight: 100,
+                  fontSize: 'clamp(2rem, 4vw, 48px)',
+                  lineHeight: '1.05',
+                  letterSpacing: '-2.5px',
+                  color: '#101828',
+                }}
               >
                 Fraud Intelligence Without Sharing Raw Data
               </h2>
@@ -299,7 +314,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
           </div>
         </section>
       )}
-    </div>
+    </motion.div>
   );
 };
 

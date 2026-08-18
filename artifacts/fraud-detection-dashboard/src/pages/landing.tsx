@@ -615,9 +615,6 @@ export default function Landing() {
                 required
                 data-testid="input-api-key"
               />
-              <p className="text-[10px] text-muted-foreground">
-                Enter <code className="bg-muted px-1 py-0.5 rounded font-mono">demo-key-12345</code> for Operator Admin access, or a registered bank key for Bank Node access.
-              </p>
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-4">
