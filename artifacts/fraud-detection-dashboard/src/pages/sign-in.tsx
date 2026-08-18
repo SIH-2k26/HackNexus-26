@@ -19,6 +19,24 @@ export default function SignIn() {
     const password = (form.elements.namedItem('password') as HTMLInputElement).value;
     const apiKey = (form.elements.namedItem('apiKey') as HTMLInputElement).value;
 
+    const allowedOperatorEmails = (
+      import.meta.env.VITE_OPERATOR_EMAIL ||
+      'operator@vaultic.io,sarthakpatil18@gmail.com,sarthak@vaultic.io'
+    )
+      .split(',')
+      .map((e: string) => e.trim().toLowerCase());
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check if the user email is registered/authorized
+    const isAuthorizedOperator = allowedOperatorEmails.includes(normalizedEmail);
+
+    if (!isAuthorizedOperator && !normalizedEmail.endsWith('@vaultic.io') && !normalizedEmail.includes('admin') && !normalizedEmail.includes('operator')) {
+      setErrorMessage('User not registered. This email is not authorized for Vaultic Central Operator access.');
+      setLoading(false);
+      return;
+    }
+
     try {
       // 1. Supabase User Authentication & Email Storage in Supabase
       if (email && password) {
@@ -32,6 +50,7 @@ export default function SignIn() {
               data: {
                 registered_at: new Date().toISOString(),
                 platform: 'Vaultic Federated Fraud Intelligence',
+                authorized_operator: isAuthorizedOperator,
               },
             },
           });
