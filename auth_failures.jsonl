@@ -14,3 +14,6 @@
 {"timestamp": "2026-08-18T08:17:25.367551+00:00", "attempted_key_prefix": "demo-key", "endpoint": "/auth/verify-key"}
 {"timestamp": "2026-08-18T08:17:25.623927+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/status"}
 {"timestamp": "2026-08-18T08:17:25.640165+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/score"}
+{"timestamp": "2026-08-18T08:30:25.424399+00:00", "attempted_key_prefix": "demo-key", "endpoint": "/auth/verify-key"}
+{"timestamp": "2026-08-18T08:30:25.581861+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/status"}
+{"timestamp": "2026-08-18T08:30:25.599287+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/score"}

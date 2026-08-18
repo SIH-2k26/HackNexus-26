@@ -1,9 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { FederatedState, BankMetrics, GlobalModel, TransactionInput, ScoreResult } from './types';
 import { getAuthApiKey } from './utils';
+import { API_BASE_URL } from './api-config';
 import { scoreTransaction as scoreTransactionEngine } from './fl-engine';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
 function getInitialBanks(): BankMetrics[] {
   return [
@@ -34,13 +33,24 @@ function mapBackendRoundResult(
   const perBankAccuracy = result.per_bank_accuracy || {};
   const contribution = result.per_bank_contribution || {};
 
-  const mappedBanks: BankMetrics[] = ['bank_0', 'bank_1', 'bank_2', 'bank_3'].map((bKey, idx) => {
+  const rawKeys = Object.keys(perBank).length > 0
+    ? Object.keys(perBank)
+    : prevBanks.map(b => b.bankId.toLowerCase().replace(' ', '_'));
+
+  const bankKeys = Array.from(new Set(rawKeys)).sort((a, b) => {
+    const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+    const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+    return numA - numB;
+  });
+
+  const mappedBanks: BankMetrics[] = bankKeys.map((bKey) => {
     const metrics = perBank[bKey] || {};
-    const bankLabel = `Bank_${idx}`;
-    const prev = prevBanks.find(b => b.bankId.toLowerCase() === bankLabel.toLowerCase());
+    const bankNum = bKey.replace('bank_', '');
+    const bankLabel = `Bank_${bankNum}`;
+    const prev = prevBanks.find(b => b.bankId.toLowerCase() === bankLabel.toLowerCase() || b.bankId.toLowerCase() === bKey.toLowerCase());
     
     // Sample counts from contribution weight or fallback
-    const weightFraction = contribution[bKey] ?? 0.25;
+    const weightFraction = contribution[bKey] ?? (1 / Math.max(1, bankKeys.length));
     const sampleCount = Math.round(weightFraction * 5000) || prev?.sampleCount || 1000;
 
     return {

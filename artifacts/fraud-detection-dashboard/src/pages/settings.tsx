@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useFederatedLearningContext } from '@/lib/federated-learning-provider';
+import { API_BASE_URL } from '@/lib/api-config';
 
 interface SystemConfig {
   mode: 'simulation' | 'live';
@@ -22,7 +23,7 @@ export default function Settings() {
     const saved = localStorage.getItem('vaultic-config');
     return saved
       ? JSON.parse(saved)
-      : { mode: 'simulation', backendUrl: 'http://127.0.0.1:8000', apiKey: '' };
+      : { mode: 'live', backendUrl: API_BASE_URL, apiKey: '' };
   });
 
   const handleSave = () => {
@@ -74,7 +75,7 @@ export default function Settings() {
                 <span className="w-2 h-2 rounded-full bg-chart-2" />
                 Connected
               </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 font-mono">127.0.0.1:8000</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5 font-mono truncate max-w-[140px]">{config.backendUrl.replace(/^https?:\/\//, '')}</p>
             </div>
 
             <div className="bg-background/80 border border-border/80 rounded-lg p-4 transition-all hover:border-border">

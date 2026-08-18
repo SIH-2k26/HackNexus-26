@@ -1,6 +1,11 @@
 {
-  "installCommand": "npx pnpm install",
-  "buildCommand": "npx pnpm --filter @workspace/fraud-detection-dashboard run build",
+  "buildCommand": "cd artifacts/fraud-detection-dashboard && npm install && npm run build",
   "outputDirectory": "artifacts/fraud-detection-dashboard/dist/public",
-  "framework": null
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }

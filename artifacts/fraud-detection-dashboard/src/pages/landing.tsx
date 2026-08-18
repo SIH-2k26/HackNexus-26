@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShieldCheck, Key, AlertCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { API_BASE_URL } from "@/lib/api-config";
 
 const pipeline = [
   "Local Data",
@@ -113,7 +114,7 @@ export default function Landing() {
       }
 
       // 2. Validate Vaultic API Key via Backend
-      const res = await fetch("http://127.0.0.1:8000/auth/verify-key", {
+      const res = await fetch(`${API_BASE_URL}/auth/verify-key`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ api_key: apiKey }),

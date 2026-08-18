@@ -13,27 +13,51 @@ from core.preprocessing import transaction_to_features, extract_risk_reasons
 _NON_FEATURE_COLS = {"is_fraud", "transaction_id"}
 
 
+import re
+
 def load_bank_data(data_dir="data/banks", num_banks=4):
     """Loads private dataset for each bank and creates an 80/20 train/test split.
 
     Calls transaction_to_features() on every row so that training and inference
     share the identical feature extraction path (core/preprocessing.py).
+    Discovers all bank_*.csv files dynamically in data_dir.
     """
     bank_data = []
     # Fallback to "data" if "data/banks" doesn't exist
     target_dir = data_dir if os.path.exists(data_dir) else "data"
 
+    # 1. Discover all candidate bank files in target_dir
+    found_files = {}
+    if os.path.exists(target_dir):
+        for f in os.listdir(target_dir):
+            if f.startswith("bank_") and f.endswith(".csv"):
+                # Extract index or name
+                bank_id = f[:-4]
+                file_path = os.path.join(target_dir, f)
+                found_files[bank_id] = file_path
+
+    # Ensure baseline 0..(num_banks-1) exist or fall back
     for i in range(num_banks):
-        file_path = os.path.join(target_dir, f"bank_{i}.csv")
-        if not os.path.exists(file_path):
-            file_path = os.path.join("data", f"bank_{i}.csv")
+        bid = f"bank_{i}"
+        if bid not in found_files:
+            fallback_path = os.path.join("data", f"bank_{i}.csv")
+            if os.path.exists(fallback_path):
+                found_files[bid] = fallback_path
 
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(
-                f"Missing bank data at {file_path}. "
-                "Run data/generate_data.py first."
-            )
+    if not found_files:
+        raise FileNotFoundError(
+            f"Missing bank data at {target_dir}. "
+            "Run data/generate_data.py first."
+        )
 
+    # Sort bank IDs naturally (bank_0, bank_1, ... bank_10)
+    sorted_bank_ids = sorted(
+        found_files.keys(),
+        key=lambda k: int(re.search(r"\d+", k).group()) if re.search(r"\d+", k) else 9999
+    )
+
+    for bank_id in sorted_bank_ids:
+        file_path = found_files[bank_id]
         df = pd.read_csv(file_path)
         y = df["is_fraud"].values
 
@@ -43,12 +67,17 @@ def load_bank_data(data_dir="data/banks", num_banks=4):
         rows = df[feature_cols].to_dict("records")
         X = np.vstack([transaction_to_features(row) for row in rows])
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, random_state=42, test_size=0.2, stratify=y
-        )
+        try:
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, random_state=42, test_size=0.2, stratify=y
+            )
+        except Exception:
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, random_state=42, test_size=0.2, stratify=None
+            )
 
         bank_data.append({
-            "bank_id": f"bank_{i}",
+            "bank_id": bank_id,
             "X_train": X_train,
             "X_test": X_test,
             "y_train": y_train,
@@ -78,6 +107,56 @@ class FederatedTrainer:
 
         self.current_round = 0
         self.history = []
+
+    def add_bank_node(self, bank_id: str, df: pd.DataFrame, bank_name: str = None) -> dict:
+        """Dynamically onboards a new bank dataset to the active federation.
+        
+        The new bank initializes its local model with the current global model weights
+        and seamlessly participates in all subsequent rounds starting from the next round.
+        """
+        y = df["is_fraud"].values
+        feature_cols = [c for c in df.columns if c not in _NON_FEATURE_COLS]
+        rows = df[feature_cols].to_dict("records")
+        X = np.vstack([transaction_to_features(row) for row in rows])
+
+        try:
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, random_state=42, test_size=0.2, stratify=y
+            )
+        except Exception:
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, random_state=42, test_size=0.2, stratify=None
+            )
+
+        # Initialize local bank model with current global model weights
+        model = new_model()
+        bootstrap_init(model)
+        set_weights(model, get_weights(self.global_model))
+
+        bank_entry = {
+            "bank_id": bank_id,
+            "bank_name": bank_name or bank_id,
+            "X_train": X_train,
+            "X_test": X_test,
+            "y_train": y_train,
+            "y_test": y_test,
+            "sample_count": len(X_train),
+            "model": model,
+        }
+
+        # Check if already exists (replace) or append
+        existing_idx = next((i for i, b in enumerate(self.banks) if b["bank_id"] == bank_id), None)
+        if existing_idx is not None:
+            self.banks[existing_idx] = bank_entry
+        else:
+            self.banks.append(bank_entry)
+
+        return {
+            "bank_id": bank_id,
+            "bank_name": bank_name or bank_id,
+            "sample_count": len(X_train),
+            "total_banks": len(self.banks),
+        }
 
     def run_round(
         self,

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { SignInPage } from '@/components/ui/sign-in';
 import { supabase } from '@/lib/supabase';
+import { API_BASE_URL } from '@/lib/api-config';
 import heroVisual from '@/assets/hero-federated.png';
 
 const ALLOWED_OPERATOR_EMAILS = [
@@ -143,7 +144,7 @@ export default function SignIn() {
       let tier = 'admin';
 
       try {
-        const res = await fetch('http://127.0.0.1:8000/auth/verify-key', {
+        const res = await fetch(`${API_BASE_URL}/auth/verify-key`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ api_key: resolvedApiKey }),

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { ShieldCheck, FileText, Search, ShieldAlert, CheckCircle2, Lock, Activity, RefreshCcw, AlertTriangle, Download } from 'lucide-react';
 import { useFederatedLearningContext } from '@/lib/federated-learning-provider';
 import { formatBankName, getAuthApiKey } from '@/lib/utils';
+import { API_BASE_URL } from '@/lib/api-config';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -45,7 +46,7 @@ export default function Audit() {
   const handleExportReport = async () => {
     try {
       const apiKey = getAuthApiKey();
-      const res = await fetch('http://127.0.0.1:8000/export/audit-report', {
+      const res = await fetch(`${API_BASE_URL}/export/audit-report`, {
         headers: { 'x-api-key': apiKey },
       });
       if (res.ok) {
@@ -70,7 +71,7 @@ export default function Audit() {
     async function fetchAuditLogs() {
       try {
         const apiKey = getAuthApiKey();
-        const res = await fetch('http://127.0.0.1:8000/audit', {
+        const res = await fetch(`${API_BASE_URL}/audit`, {
           headers: { 'x-api-key': apiKey },
         });
         if (res.ok) {
@@ -108,7 +109,7 @@ export default function Audit() {
     async function fetchAuthFailures() {
       try {
         const apiKey = getAuthApiKey();
-        const res = await fetch('http://127.0.0.1:8000/admin/auth-failures', {
+        const res = await fetch(`${API_BASE_URL}/admin/auth-failures`, {
           headers: { 'x-api-key': apiKey },
         });
         if (res.ok) {
