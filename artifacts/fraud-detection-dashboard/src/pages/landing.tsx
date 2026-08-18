@@ -174,17 +174,7 @@ export default function Landing() {
           </div>
 
           <div className="rise mx-auto mt-2 max-w-4xl text-center [animation-delay:120ms]">
-            <h1
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: 100,
-                fontSize: "clamp(2.6rem, 5.8vw, 72px)",
-                lineHeight: "clamp(2.6rem, 5.8vw, 72px)",
-                letterSpacing: "-2.5px",
-                color: "#101828",
-              }}
-              className="text-center"
-            >
+            <h1 className="text-[2.6rem] font-semibold text-ink sm:text-6xl lg:text-7xl">
               Fraud Intelligence Without Sharing Raw Data
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-base text-ink/70 sm:text-lg">

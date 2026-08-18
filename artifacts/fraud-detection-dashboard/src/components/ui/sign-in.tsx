@@ -276,15 +276,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 className="w-full max-w-md object-contain drop-shadow-2xl float-slow blend-blue"
               />
               <h2
-                className="mt-6 text-3xl xl:text-4xl leading-tight max-w-sm"
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontWeight: 100,
-                  fontSize: 'clamp(2rem, 4vw, 48px)',
-                  lineHeight: '1.05',
-                  letterSpacing: '-2.5px',
-                  color: '#101828',
-                }}
+                className="mt-6 text-3xl xl:text-4xl font-semibold leading-tight max-w-sm text-ink"
               >
                 Fraud Intelligence Without Sharing Raw Data
               </h2>
