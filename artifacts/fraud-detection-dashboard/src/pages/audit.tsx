@@ -229,6 +229,37 @@ export default function Audit() {
 
       {/* Main content */}
       <div className="p-8 space-y-8">
+        {/* Top Status Line: System Health & Unresolved Security Events (Change 4a) */}
+        <div className={`p-4 rounded-xl border flex items-center justify-between shadow-xs ${
+          authFailures.length > 0
+            ? 'bg-amber-500/10 border-amber-500/30 text-amber-600'
+            : 'bg-chart-2/10 border-chart-2/20 text-chart-2'
+        }`}>
+          <div className="flex items-center gap-3">
+            {authFailures.length > 0 ? (
+              <AlertTriangle className="w-5 h-5 text-amber-500 animate-pulse" />
+            ) : (
+              <CheckCircle2 className="w-5 h-5 text-chart-2" />
+            )}
+            <div>
+              <p className="text-xs font-bold font-mono uppercase tracking-wider">
+                System Status: {authFailures.length > 0 ? 'Security Events Detected' : 'All Systems Operational'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {authFailures.length > 0
+                  ? `${authFailures.length} unauthorized access attempt(s) logged in security trail`
+                  : 'Zero unauthorized access attempts. All bank node connections authorized.'}
+              </p>
+            </div>
+          </div>
+          <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${
+            authFailures.length > 0
+              ? 'bg-amber-500/20 text-amber-600 border-amber-500/40'
+              : 'bg-chart-2/20 text-chart-2 border-chart-2/30'
+          }`}>
+            {authFailures.length > 0 ? `${authFailures.length} Security Event(s)` : '0 Security Alerts'}
+          </span>
+        </div>
         {/* Audit Summary Grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
           <div className="bg-card border border-card-border rounded-xl p-5 shadow-xs">
