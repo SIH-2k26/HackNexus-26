@@ -171,9 +171,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                       id="signin-apikey"
                       name="apiKey"
                       type={showApiKey ? 'text' : 'password'}
-                      placeholder="Enter your API Key"
+                      placeholder="Enter your API Key (optional for authorized emails)"
                       className="w-full bg-transparent font-mono text-sm p-4 pr-12 rounded-2xl focus:outline-none text-foreground placeholder:text-muted-foreground/60"
-                      required
                       data-testid="input-api-key"
                       autoComplete="off"
                     />
