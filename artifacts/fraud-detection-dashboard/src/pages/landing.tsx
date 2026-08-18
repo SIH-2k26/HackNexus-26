@@ -543,7 +543,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <Footer />
+      <Footer onOpenAuth={() => setAuthModalOpen(true)} />
 
       {/* AUTH & API KEY VERIFICATION DIALOG */}
       <Dialog open={authModalOpen} onOpenChange={setAuthModalOpen}>
