@@ -265,7 +265,10 @@ export default function GlobalModel() {
             <div className="bg-card border border-border rounded-lg p-3 text-center">
               <div className="text-lg mb-1">🔒</div>
               <p className="text-xs font-semibold">SecAgg & DP Noise</p>
-              <p className="text-[10px] text-muted-foreground">Masked Weights</p>
+              <p className="text-[10px] text-muted-foreground">Masked Weights (δ &lt; 10⁻⁹ Exact)</p>
+              <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5">
+                Algorithmic mask-cancellation verified locally. Production deployment would add multi-party cryptographic key exchange.
+              </p>
             </div>
 
             <div className="bg-card border border-primary/40 bg-primary/5 rounded-lg p-3 text-center">
