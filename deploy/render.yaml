@@ -6,6 +6,6 @@ services:
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: FRAUD_API_KEY
-        value: demo-key-12345
+        value: vlt_op_9e8d4a72f1b03c8e5d2a6b4c1f7e9a0d
       - key: PYTHON_VERSION
         value: 3.10.0

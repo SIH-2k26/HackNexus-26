@@ -115,18 +115,18 @@ export const SignInPage: React.FC<SignInPageProps> = ({
 
             {/* Form */}
             <form className="space-y-4" onSubmit={onSignIn}>
-              {/* Email */}
+              {/* Email / Username */}
               <div>
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Email Address</label>
                 <GlassInputWrapper>
                   <input
                     id="signin-email"
                     name="email"
-                    type="email"
-                    placeholder="operator@vaultic.io"
+                    type="text"
+                    placeholder="Enter your email address"
                     className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none text-foreground placeholder:text-muted-foreground/60"
                     required
-                    autoComplete="email"
+                    autoComplete="username email"
                   />
                 </GlassInputWrapper>
               </div>

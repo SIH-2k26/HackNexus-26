@@ -598,7 +598,7 @@ export default function Landing() {
               <Input
                 id="auth-apikey"
                 type="password"
-                placeholder="Enter demo-key-12345 or vlt_..."
+                placeholder="Enter your Vaultic API Key (vlt_...)"
                 value={apiKey}
                 onChange={e => setApiKey(e.target.value)}
                 className="bg-background font-mono text-xs"

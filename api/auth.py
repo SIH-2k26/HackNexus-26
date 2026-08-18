@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from fastapi import Header, HTTPException, Request
 
-FRAUD_API_KEY = os.getenv("FRAUD_API_KEY", "demo-key-12345")
+FRAUD_API_KEY = os.getenv("FRAUD_API_KEY", "vlt_op_9e8d4a72f1b03c8e5d2a6b4c1f7e9a0d")
 
 # Bank registry: {api_key: {bank_name, created_at, tier, active}}
 BANK_REGISTRY: dict[str, dict] = {}

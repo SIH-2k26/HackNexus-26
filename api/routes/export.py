@@ -2,7 +2,7 @@
 Export Audit & Compliance Report Endpoint
 Returns a downloadable JSON report summarizing system state, DP noise, SecAgg status, bank registry, and audit logs.
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from datetime import datetime, timezone
 import json
@@ -10,10 +10,11 @@ import os
 import numpy as np
 
 from core.training import evaluate
+from api.auth import verify_admin_key
 
 router = APIRouter()
 
-@router.get("/export/audit-report")
+@router.get("/export/audit-report", dependencies=[Depends(verify_admin_key)])
 def export_audit_report():
     """Returns a comprehensive audit & compliance report JSON payload."""
     from api.main import trainer

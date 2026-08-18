@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Query, Request
-from api.auth import verify_api_key, BANK_REGISTRY, FRAUD_API_KEY
+from api.auth import verify_admin_key, BANK_REGISTRY, FRAUD_API_KEY
 
 router = APIRouter()
 AUDIT_LOG_FILE = "audit_log.jsonl"
@@ -39,7 +39,7 @@ def run_train_round(
     epsilon: float = Query(1.0, description="Differential privacy noise parameter"),
     use_dp: bool = Query(True, description="Enable differential privacy noise injection"),
     simulate_secagg: bool = Query(False, description="Enable Secure Aggregation simulation"),
-    key_used: str = Depends(verify_api_key),
+    key_used: str = Depends(verify_admin_key),
 ):
     """Runs one federated learning round (local bank training -> FedAvg/SecAgg -> global evaluation)."""
     from api.main import trainer

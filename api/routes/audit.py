@@ -7,9 +7,9 @@ router = APIRouter()
 AUDIT_LOG_FILE = "audit_log.jsonl"
 AUTH_FAILURES_LOG = "auth_failures.jsonl"
 
-@router.get("/audit")
+@router.get("/audit", dependencies=[Depends(verify_admin_key)])
 def get_audit_trail():
-    """Read-only: Returns last 20 audit trail entries. No auth required."""
+    """Admin-only: Returns last 20 audit trail entries."""
     if not os.path.exists(AUDIT_LOG_FILE):
         return {"total_logs": 0, "logs": []}
     logs = []

@@ -1,2 +1,16 @@
 {"timestamp": "2026-08-01T03:49:24.118447+00:00", "attempted_key_prefix": "vlt_ae35", "endpoint": "/train"}
 {"timestamp": "2026-08-18T06:12:12.338035+00:00", "attempted_key_prefix": "invalid-", "endpoint": "/auth/verify-key"}
+{"timestamp": "2026-08-18T08:02:26.492004+00:00", "attempted_key_prefix": "key-alph", "endpoint": "/auth/verify-key"}
+{"timestamp": "2026-08-18T08:02:26.496105+00:00", "attempted_key_prefix": "fake-key", "endpoint": "/auth/verify-key"}
+{"timestamp": "2026-08-18T08:02:26.497459+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/auth/verify-key"}
+{"timestamp": "2026-08-18T08:02:26.505643+00:00", "attempted_key_prefix": "aaaaaaaa", "endpoint": "/auth/verify-key"}
+{"timestamp": "2026-08-18T08:03:11.607889+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/score"}
+{"timestamp": "2026-08-18T08:03:11.617355+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/train"}
+{"timestamp": "2026-08-18T08:03:11.905737+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/reset"}
+{"timestamp": "2026-08-18T08:03:12.431763+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/me"}
+{"timestamp": "2026-08-18T08:03:12.435622+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/me/rotate-key"}
+{"timestamp": "2026-08-18T08:03:12.520398+00:00", "attempted_key_prefix": "vlt_c940", "endpoint": "/me/rotate-key"}
+{"timestamp": "2026-08-18T08:03:12.521679+00:00", "attempted_key_prefix": "vlt_c940", "endpoint": "/me"}
+{"timestamp": "2026-08-18T08:17:25.367551+00:00", "attempted_key_prefix": "demo-key", "endpoint": "/auth/verify-key"}
+{"timestamp": "2026-08-18T08:17:25.623927+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/status"}
+{"timestamp": "2026-08-18T08:17:25.640165+00:00", "attempted_key_prefix": "MISSING", "endpoint": "/score"}

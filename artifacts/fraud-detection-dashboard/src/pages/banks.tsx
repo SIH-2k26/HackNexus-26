@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Database, TrendingUp, Award, Plus, Key, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 import { useFederatedLearningContext } from '@/lib/federated-learning-provider';
-import { formatBankName } from '@/lib/utils';
+import { formatBankName, getAuthApiKey } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/dialog';
 
 interface RegisteredBankNode {
-  full_key?: string;
   api_key_prefix: string;
   bank_name: string;
   tier: string;
@@ -50,8 +49,9 @@ export default function Banks() {
   // Fetch admin registered bank nodes list if backend is live
   const fetchRegisteredBanks = async () => {
     try {
+      const apiKey = getAuthApiKey();
       const res = await fetch('http://127.0.0.1:8000/admin/banks', {
-        headers: { 'x-api-key': 'demo-key-12345' },
+        headers: { 'x-api-key': apiKey },
       });
       if (res.ok) {
         const data = await res.json();
@@ -73,9 +73,13 @@ export default function Banks() {
     if (!newBankName.trim()) return;
     setRegistering(true);
     try {
+      const apiKey = getAuthApiKey();
       const res = await fetch('http://127.0.0.1:8000/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
         body: JSON.stringify({ bank_name: newBankName.trim(), tier: newBankTier }),
       });
       if (res.ok) {
@@ -96,37 +100,39 @@ export default function Banks() {
     }
   };
 
-  const handleRevokeKey = async (fullKey: string) => {
-    setActionLoadingKey(fullKey);
+  const handleRevokeKey = async (keyPrefix: string) => {
+    setActionLoadingKey(keyPrefix);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/admin/banks/${encodeURIComponent(fullKey)}/revoke`, {
+      const apiKey = getAuthApiKey();
+      const res = await fetch(`http://127.0.0.1:8000/admin/banks/${encodeURIComponent(keyPrefix)}/revoke`, {
         method: 'POST',
-        headers: { 'x-api-key': 'demo-key-12345' },
+        headers: { 'x-api-key': apiKey },
       });
       if (res.ok) {
         fetchRegisteredBanks();
       }
     } catch (err) {
       // Fallback state update
-      setApiBanks(prev => prev.map(b => b.full_key === fullKey ? { ...b, active: false } : b));
+      setApiBanks(prev => prev.map(b => b.api_key_prefix === keyPrefix ? { ...b, active: false } : b));
     } finally {
       setActionLoadingKey(null);
     }
   };
 
-  const handleReinstateKey = async (fullKey: string) => {
-    setActionLoadingKey(fullKey);
+  const handleReinstateKey = async (keyPrefix: string) => {
+    setActionLoadingKey(keyPrefix);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/admin/banks/${encodeURIComponent(fullKey)}/reinstate`, {
+      const apiKey = getAuthApiKey();
+      const res = await fetch(`http://127.0.0.1:8000/admin/banks/${encodeURIComponent(keyPrefix)}/reinstate`, {
         method: 'POST',
-        headers: { 'x-api-key': 'demo-key-12345' },
+        headers: { 'x-api-key': apiKey },
       });
       if (res.ok) {
         fetchRegisteredBanks();
       }
     } catch (err) {
       // Fallback state update
-      setApiBanks(prev => prev.map(b => b.full_key === fullKey ? { ...b, active: true } : b));
+      setApiBanks(prev => prev.map(b => b.api_key_prefix === keyPrefix ? { ...b, active: true } : b));
     } finally {
       setActionLoadingKey(null);
     }
@@ -315,7 +321,7 @@ export default function Banks() {
                   b => b.bank_name.toLowerCase() === bank.bankId.toLowerCase() || b.bank_name.toLowerCase() === bankName.toLowerCase()
                 );
                 const isKeyActive = registeredNode ? registeredNode.active : true;
-                const fullKey = registeredNode?.full_key;
+                const keyPrefix = registeredNode?.api_key_prefix;
 
                 return (
                   <TableRow key={bank.bankId} data-testid={`bank-row-${bank.bankId}`}>
@@ -351,13 +357,13 @@ export default function Banks() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      {fullKey ? (
+                      {keyPrefix ? (
                         isKeyActive ? (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleRevokeKey(fullKey)}
-                            disabled={actionLoadingKey === fullKey}
+                            onClick={() => handleRevokeKey(keyPrefix)}
+                            disabled={actionLoadingKey === keyPrefix}
                             className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
                             <ShieldAlert className="w-3.5 h-3.5 mr-1" /> Revoke
@@ -366,15 +372,15 @@ export default function Banks() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleReinstateKey(fullKey)}
-                            disabled={actionLoadingKey === fullKey}
+                            onClick={() => handleReinstateKey(keyPrefix)}
+                            disabled={actionLoadingKey === keyPrefix}
                             className="h-7 text-xs text-chart-2 hover:text-chart-2 hover:bg-chart-2/10"
                           >
                             <ShieldCheck className="w-3.5 h-3.5 mr-1" /> Reinstate
                           </Button>
                         )
                       ) : (
-                        <span className="text-[11px] text-muted-foreground font-mono">Simulated Key</span>
+                        <span className="text-[11px] text-muted-foreground font-mono">Node Active</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -430,28 +436,26 @@ export default function Banks() {
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.full_key && (
-                          item.active ? (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRevokeKey(item.full_key!)}
-                              disabled={actionLoadingKey === item.full_key}
-                              className="h-7 text-xs text-destructive hover:bg-destructive/10"
-                            >
-                              Revoke
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleReinstateKey(item.full_key!)}
-                              disabled={actionLoadingKey === item.full_key}
-                              className="h-7 text-xs text-chart-2 hover:bg-chart-2/10"
-                            >
-                              Reinstate
-                            </Button>
-                          )
+                        {item.active ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRevokeKey(item.api_key_prefix)}
+                            disabled={actionLoadingKey === item.api_key_prefix}
+                            className="h-7 text-xs text-destructive hover:bg-destructive/10"
+                          >
+                            Revoke
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleReinstateKey(item.api_key_prefix)}
+                            disabled={actionLoadingKey === item.api_key_prefix}
+                            className="h-7 text-xs text-chart-2 hover:bg-chart-2/10"
+                          >
+                            Reinstate
+                          </Button>
                         )}
                       </TableCell>
                     </TableRow>

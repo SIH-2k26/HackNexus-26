@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { ShieldCheck, FileText, Search, ShieldAlert, CheckCircle2, Lock, Activity, RefreshCcw, AlertTriangle, Download } from 'lucide-react';
 import { useFederatedLearningContext } from '@/lib/federated-learning-provider';
-import { formatBankName } from '@/lib/utils';
+import { formatBankName, getAuthApiKey } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -44,7 +44,21 @@ export default function Audit() {
 
   const handleExportReport = async () => {
     try {
-      window.open('http://127.0.0.1:8000/export/audit-report', '_blank');
+      const apiKey = getAuthApiKey();
+      const res = await fetch('http://127.0.0.1:8000/export/audit-report', {
+        headers: { 'x-api-key': apiKey },
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `vaultic_audit_report_${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
     } catch (err) {
       console.error('Export report failed', err);
     }
@@ -55,7 +69,10 @@ export default function Audit() {
     let isMounted = true;
     async function fetchAuditLogs() {
       try {
-        const res = await fetch('http://127.0.0.1:8000/audit');
+        const apiKey = getAuthApiKey();
+        const res = await fetch('http://127.0.0.1:8000/audit', {
+          headers: { 'x-api-key': apiKey },
+        });
         if (res.ok) {
           const data = await res.json();
           if (data.logs && Array.isArray(data.logs) && isMounted) {
@@ -90,8 +107,9 @@ export default function Audit() {
     let isMounted = true;
     async function fetchAuthFailures() {
       try {
+        const apiKey = getAuthApiKey();
         const res = await fetch('http://127.0.0.1:8000/admin/auth-failures', {
-          headers: { 'x-api-key': 'demo-key-12345' },
+          headers: { 'x-api-key': apiKey },
         });
         if (res.ok) {
           const data = await res.json();
