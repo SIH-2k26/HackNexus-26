@@ -92,11 +92,11 @@ export default function SignIn() {
       };
       localStorage.setItem('vaultic_auth_session', JSON.stringify(sessionData));
 
-      // 4. Role-based redirect
+      // 4. Role-based redirect (hard navigate so ProtectedRoute reads fresh session)
       if (keyData.role === 'operator') {
-        setLocation('/');
+        window.location.href = '/';
       } else {
-        setLocation('/banks');
+        window.location.href = '/banks';
       }
     } catch (err) {
       console.error('Authentication error:', err);
