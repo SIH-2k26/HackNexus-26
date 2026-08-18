@@ -105,10 +105,23 @@ export default function SignIn() {
 
   const handleGoogleSignIn = async () => {
     try {
-      await supabase.auth.signInWithOAuth({ provider: 'google' });
-    } catch (err) {
-      console.warn('Google sign-in not configured:', err);
-      setErrorMessage('Google sign-in requires Supabase OAuth configuration.');
+      setErrorMessage('');
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/sign-in`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+      if (error) {
+        setErrorMessage(error.message);
+      }
+    } catch (err: any) {
+      console.warn('Google sign-in notice:', err);
+      setErrorMessage(err?.message || 'Google sign-in requires Supabase OAuth configuration.');
     }
   };
 
