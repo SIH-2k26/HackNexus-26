@@ -3,14 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "pnpm --filter @workspace/fraud-detection-dashboard run dev",
-    "build": "pnpm --filter @workspace/fraud-detection-dashboard run build",
-    "typecheck": "pnpm --filter @workspace/fraud-detection-dashboard run typecheck"
+    "dev": "cd artifacts/fraud-detection-dashboard && npm run dev",
+    "build": "cd artifacts/fraud-detection-dashboard && npm install && npm run build && cp -r dist ../../dist",
+    "typecheck": "cd artifacts/fraud-detection-dashboard && npm run typecheck"
   },
-  "private": true,
-  "dependencies": {},
-  "devDependencies": {
-    "prettier": "^3.9.6",
-    "typescript": "~5.9.3"
-  }
+  "private": true
 }
