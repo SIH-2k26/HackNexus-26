@@ -7,6 +7,7 @@ import { Layout } from '@/components/layout';
 import { ProtectedRoute } from '@/components/protected-route';
 import { FederatedLearningProvider } from '@/lib/federated-learning-provider';
 import Landing from '@/pages/landing';
+import SignIn from '@/pages/sign-in';
 import CommandCenter from '@/pages/command-center';
 import Banks from '@/pages/banks';
 import GlobalModel from '@/pages/global-model';
@@ -19,6 +20,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/landing" component={Landing} />
+      <Route path="/sign-in" component={SignIn} />
       <Route path="/">
         {() => (
           <Layout>

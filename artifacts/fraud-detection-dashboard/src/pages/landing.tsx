@@ -158,7 +158,7 @@ export default function Landing() {
 
   return (
     <div id="top" className="overflow-x-hidden">
-      <Nav onOpenAuth={() => setAuthModalOpen(true)} />
+      <Nav onOpenAuth={() => setLocation('/sign-in')} />
 
       {/* HERO */}
       <section className="hero-panel relative pt-28 pb-20 sm:pt-32">
@@ -183,7 +183,7 @@ export default function Landing() {
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <button
-                onClick={() => setAuthModalOpen(true)}
+                onClick={() => setLocation('/sign-in')}
                 className="rounded-full bg-brand px-7 py-3.5 text-sm font-medium text-on-brand transition-transform duration-300 hover:-translate-y-0.5 cursor-pointer"
                 data-testid="button-explore-vaultic"
               >
@@ -527,7 +527,7 @@ export default function Landing() {
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
               <button
-                onClick={() => setAuthModalOpen(true)}
+                onClick={() => setLocation('/sign-in')}
                 className="rounded-full bg-on-brand px-7 py-3.5 text-sm font-medium text-brand transition-transform duration-300 hover:-translate-y-0.5 cursor-pointer"
               >
                 Access Vaultic Console
@@ -543,7 +543,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <Footer onOpenAuth={() => setAuthModalOpen(true)} />
+      <Footer onOpenAuth={() => setLocation('/sign-in')} />
 
       {/* AUTH & API KEY VERIFICATION DIALOG */}
       <Dialog open={authModalOpen} onOpenChange={setAuthModalOpen}>
