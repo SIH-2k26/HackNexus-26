@@ -14,7 +14,12 @@ const ALLOWED_OPERATOR_EMAILS = [
 ];
 
 export default function SignIn() {
-  const [loading, setLoading] = useState(false);
+  const hasOAuthReturn = typeof window !== 'undefined' && (
+    window.location.hash.includes('access_token') ||
+    window.location.search.includes('code=') ||
+    window.location.search.includes('error=')
+  );
+  const [loading, setLoading] = useState(hasOAuthReturn);
   const [errorMessage, setErrorMessage] = useState('');
 
   // Handle Google OAuth callback, URL errors & existing Supabase sessions on mount
@@ -25,6 +30,7 @@ export default function SignIn() {
     const urlError = urlParams.get('error_description') || hashParams.get('error_description');
 
     if (urlError) {
+      setLoading(false);
       if (urlError.includes('exchange external code') || urlError.includes('unexpected_failure')) {
         setErrorMessage('Google OAuth setup: Please ensure the Client Secret and Redirect URI are matched in Supabase and Google Cloud Console.');
       } else {
@@ -35,7 +41,10 @@ export default function SignIn() {
     }
 
     const handleAuth = async (email: string | undefined) => {
-      if (!email) return;
+      if (!email) {
+        setLoading(false);
+        return;
+      }
       const normalizedEmail = email.trim().toLowerCase();
       const isAuthorized = ALLOWED_OPERATOR_EMAILS.includes(normalizedEmail);
 
@@ -57,6 +66,7 @@ export default function SignIn() {
         // Navigate to Operator Command Center
         window.location.href = '/';
       } else {
+        setLoading(false);
         setErrorMessage('User not registered. This account is not authorized for Vaultic access.');
         await supabase.auth.signOut();
       }
@@ -66,6 +76,8 @@ export default function SignIn() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.email) {
         handleAuth(session.user.email);
+      } else if (!hasOAuthReturn) {
+        setLoading(false);
       }
     });
 
