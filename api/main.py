@@ -12,6 +12,7 @@ from api.routes.status import router as status_router
 from api.routes.admin import router as admin_router
 from api.routes.audit import router as audit_router
 from api.routes.me import router as me_router
+from api.routes.export import router as export_router
 from api.auth import BANK_REGISTRY
 
 app = FastAPI(
@@ -45,6 +46,7 @@ app.include_router(status_router)
 app.include_router(admin_router)
 app.include_router(audit_router)
 app.include_router(me_router)
+app.include_router(export_router)
 
 @app.get("/")
 def read_root():

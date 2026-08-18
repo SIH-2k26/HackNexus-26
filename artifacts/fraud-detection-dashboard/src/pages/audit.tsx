@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ShieldCheck, FileText, Search, ShieldAlert, CheckCircle2, Lock, Activity, RefreshCcw, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, FileText, Search, ShieldAlert, CheckCircle2, Lock, Activity, RefreshCcw, AlertTriangle, Download } from 'lucide-react';
 import { useFederatedLearningContext } from '@/lib/federated-learning-provider';
 import { formatBankName } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -41,6 +41,14 @@ export default function Audit() {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [backendLogs, setBackendLogs] = useState<AuditEventItem[]>([]);
   const [authFailures, setAuthFailures] = useState<AuthFailureItem[]>([]);
+
+  const handleExportReport = async () => {
+    try {
+      window.open('http://127.0.0.1:8000/export/audit-report', '_blank');
+    } catch (err) {
+      console.error('Export report failed', err);
+    }
+  };
 
   // Fetch compliance audit logs from backend /audit endpoint
   useEffect(() => {
@@ -216,14 +224,20 @@ export default function Audit() {
     <div className="min-h-full bg-background">
       {/* Header */}
       <div className="border-b border-border bg-card">
-        <div className="px-8 py-6">
-          <div className="flex items-center gap-3 mb-2">
-            <ShieldCheck className="w-6 h-6 text-primary" />
-            <h1 className="text-2xl font-bold tracking-tight">System Audit & Event Traceability</h1>
+        <div className="px-8 py-6 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <ShieldCheck className="w-6 h-6 text-primary" />
+              <h1 className="text-2xl font-bold tracking-tight">System Audit & Event Traceability</h1>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Chronological compliance record of federated rounds, privacy guarantees, node updates, and security events (UC-13, UC-17, UC-25, UC-26)
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Chronological compliance record of federated rounds, privacy guarantees, node updates, and security events (UC-13, UC-17, UC-25, UC-26)
-          </p>
+          <Button variant="outline" size="sm" onClick={handleExportReport} data-testid="button-export-audit-report">
+            <Download className="w-4 h-4 mr-2" />
+            Export Audit Report
+          </Button>
         </div>
       </div>
 
