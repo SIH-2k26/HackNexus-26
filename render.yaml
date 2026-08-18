@@ -2,10 +2,10 @@ services:
   - type: web
     name: vaultic-fraud-api
     env: python
-    buildCommand: pip install -r requirements.txt && python generate_data.py
+    buildCommand: pip install -r requirements.txt && python data/generate_data.py
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: FRAUD_API_KEY
-        value: vlt_op_9e8d4a72f1b03c8e5d2a6b4c1f7e9a0d
+        generateValue: true
       - key: PYTHON_VERSION
         value: 3.10.0

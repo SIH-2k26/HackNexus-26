@@ -48,7 +48,7 @@ export default function SignIn() {
           bank_name: 'Vaultic Central Operator',
           bank_id: 'operator',
           tier: 'admin',
-          apiKey: import.meta.env.VITE_OPERATOR_API_KEY || 'vlt_op_9e8d4a72f1b03c8e5d2a6b4c1f7e9a0d',
+          apiKey: import.meta.env.VITE_OPERATOR_API_KEY || 'vlt_op_7f2b9a4c8e1d0356ca948b1ef029d3c5e81a7b6d',
           userEmail: normalizedEmail,
           loginTime: new Date().toISOString(),
         };
@@ -111,7 +111,7 @@ export default function SignIn() {
       }
     }
 
-    const resolvedApiKey = apiKey.trim() || (import.meta.env.VITE_OPERATOR_API_KEY || 'vlt_op_9e8d4a72f1b03c8e5d2a6b4c1f7e9a0d');
+    const resolvedApiKey = apiKey.trim() || (import.meta.env.VITE_OPERATOR_API_KEY || 'vlt_op_7f2b9a4c8e1d0356ca948b1ef029d3c5e81a7b6d');
 
     try {
       // 1. Supabase User Authentication & Email Storage (formatted email for Supabase auth if username entered)
