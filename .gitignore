@@ -18,9 +18,12 @@ node_modules/
 *.env
 !.env.example
 
-# runtime audit logs
+# runtime audit logs and datasets
 audit_log.jsonl
 auth_failures.jsonl
+data/banks/*.csv
+data/*.csv
+!data/banks/.gitkeep
 
 # Python cache and environments
 __pycache__/
