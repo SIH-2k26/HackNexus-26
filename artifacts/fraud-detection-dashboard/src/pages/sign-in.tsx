@@ -20,11 +20,21 @@ export default function SignIn() {
     const apiKey = (form.elements.namedItem('apiKey') as HTMLInputElement).value;
 
     try {
-      // 1. Supabase User Authentication
+      // 1. Supabase User Authentication & Email Storage in Supabase
       if (email && password) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          const { error: signUpError } = await supabase.auth.signUp({ email, password });
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) {
+          // If user does not exist in Supabase auth yet, automatically create and store their account
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                registered_at: new Date().toISOString(),
+                platform: 'Vaultic Federated Fraud Intelligence',
+              },
+            },
+          });
           if (signUpError && !signUpError.message.includes('already registered')) {
             console.warn('Supabase auth notice:', signUpError.message);
           }
