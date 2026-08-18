@@ -1,7 +1,7 @@
 {
-  "buildCommand": "pnpm --filter @workspace/fraud-detection-dashboard run build",
-  "outputDirectory": "artifacts/fraud-detection-dashboard/dist/public",
   "framework": "vite",
+  "buildCommand": "pnpm --filter @workspace/fraud-detection-dashboard run build",
+  "outputDirectory": "artifacts/fraud-detection-dashboard/dist",
   "rewrites": [
     {
       "source": "/(.*)",
