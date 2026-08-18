@@ -4,7 +4,9 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { Layout } from '@/components/layout';
+import { ProtectedRoute } from '@/components/protected-route';
 import { FederatedLearningProvider } from '@/lib/federated-learning-provider';
+import Landing from '@/pages/landing';
 import CommandCenter from '@/pages/command-center';
 import Banks from '@/pages/banks';
 import GlobalModel from '@/pages/global-model';
@@ -15,16 +17,45 @@ const queryClient = new QueryClient();
 
 function Router() {
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={CommandCenter} />
-        <Route path="/banks" component={Banks} />
-        <Route path="/global-model" component={GlobalModel} />
-        <Route path="/audit" component={Audit} />
-        <Route path="/settings" component={Settings} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <Switch>
+      <Route path="/landing" component={Landing} />
+      <Route path="/">
+        {() => (
+          <Layout>
+            <ProtectedRoute component={CommandCenter} allowedRoles={['operator']} />
+          </Layout>
+        )}
+      </Route>
+      <Route path="/banks">
+        {() => (
+          <Layout>
+            <ProtectedRoute component={Banks} allowedRoles={['operator', 'bank']} />
+          </Layout>
+        )}
+      </Route>
+      <Route path="/global-model">
+        {() => (
+          <Layout>
+            <ProtectedRoute component={GlobalModel} allowedRoles={['operator']} />
+          </Layout>
+        )}
+      </Route>
+      <Route path="/audit">
+        {() => (
+          <Layout>
+            <ProtectedRoute component={Audit} allowedRoles={['operator', 'bank']} />
+          </Layout>
+        )}
+      </Route>
+      <Route path="/settings">
+        {() => (
+          <Layout>
+            <ProtectedRoute component={Settings} allowedRoles={['operator']} />
+          </Layout>
+        )}
+      </Route>
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 

@@ -19,11 +19,17 @@ export function Layout({ children }: LayoutProps) {
     { path: '/settings', label: 'System Config', icon: Settings },
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn('Supabase signout notice:', e);
+    }
     localStorage.removeItem('vaultic_auth_role');
     localStorage.removeItem('vaultic_auth_session');
     setShowProfileMenu(false);
-    alert('Logged out from Vaultic Admin Session');
+    window.location.href = '/landing';
   };
 
   return (
