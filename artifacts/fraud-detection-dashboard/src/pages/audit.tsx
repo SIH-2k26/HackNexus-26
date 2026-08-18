@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ShieldCheck, FileText, Search, Filter, ShieldAlert, CheckCircle2, Lock, Activity, RefreshCcw } from 'lucide-react';
+import { ShieldCheck, FileText, Search, ShieldAlert, CheckCircle2, Lock, Activity, RefreshCcw, AlertTriangle } from 'lucide-react';
 import { useFederatedLearningContext } from '@/lib/federated-learning-provider';
 import { formatBankName } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -24,21 +24,28 @@ export interface AuditEventItem {
   category: 'training' | 'privacy' | 'security' | 'scoring' | 'system';
 }
 
+export interface AuthFailureItem {
+  timestamp: string;
+  attempted_key_prefix: string;
+  endpoint: string;
+  reason?: string;
+}
+
 export default function Audit() {
   const { state } = useFederatedLearningContext();
   const { globalModel, banks, roundHistory, status } = state;
 
+  const [activeTab, setActiveTab] = useState<'audit' | 'auth_failures'>('audit');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [backendLogs, setBackendLogs] = useState<AuditEventItem[]>([]);
-  const [isLoadingBackendLogs, setIsLoadingBackendLogs] = useState(false);
+  const [authFailures, setAuthFailures] = useState<AuthFailureItem[]>([]);
 
-  // Fetch real audit trail logs from backend /audit endpoint if available
+  // Fetch compliance audit logs from backend /audit endpoint
   useEffect(() => {
     let isMounted = true;
     async function fetchAuditLogs() {
-      setIsLoadingBackendLogs(true);
       try {
         const res = await fetch('http://127.0.0.1:8000/audit');
         if (res.ok) {
@@ -63,16 +70,36 @@ export default function Audit() {
           }
         }
       } catch (err) {
-        // Fall back gracefully to synthesized state logs if API is offline
-      } finally {
-        if (isMounted) setIsLoadingBackendLogs(false);
+        // Fallback handled gracefully
       }
     }
     fetchAuditLogs();
     return () => { isMounted = false; };
   }, [globalModel.round]);
 
-  // Synthesize real event audit record from system state
+  // Fetch authentication failure logs (UC-13, UC-26)
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchAuthFailures() {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/admin/auth-failures', {
+          headers: { 'x-api-key': 'demo-key-12345' },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.failures && Array.isArray(data.failures) && isMounted) {
+            setAuthFailures(data.failures.reverse());
+          }
+        }
+      } catch (err) {
+        // Fallback handled gracefully
+      }
+    }
+    fetchAuthFailures();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Synthesize event audit record from system state
   const stateLogs = useMemo(() => {
     const logs: AuditEventItem[] = [
       {
@@ -157,7 +184,6 @@ export default function Audit() {
     return logs.reverse();
   }, [banks, roundHistory]);
 
-  // Combine backend audit logs with synthesized state logs
   const allEvents = useMemo(() => {
     const combined = [...backendLogs, ...stateLogs];
     const seen = new Set<string>();
@@ -168,7 +194,6 @@ export default function Audit() {
     });
   }, [backendLogs, stateLogs]);
 
-  // Filter events based on search and selected dropdowns
   const filteredEvents = useMemo(() => {
     return allEvents.filter(item => {
       const matchesSearch =
@@ -197,7 +222,7 @@ export default function Audit() {
             <h1 className="text-2xl font-bold tracking-tight">System Audit & Event Traceability</h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            Chronological compliance record of federated rounds, privacy guarantees, node updates, and security events
+            Chronological compliance record of federated rounds, privacy guarantees, node updates, and security events (UC-13, UC-17, UC-25, UC-26)
           </p>
         </div>
       </div>
@@ -235,11 +260,11 @@ export default function Audit() {
 
           <div className="bg-card border border-card-border rounded-xl p-5 shadow-xs">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-              <span>Last Federated Event</span>
-              <RefreshCcw className="w-4 h-4 text-amber-500" />
+              <span>Auth Failures Logged</span>
+              <ShieldAlert className="w-4 h-4 text-amber-500" />
             </div>
-            <p className="text-sm font-bold text-foreground truncate">{lastEvent ? lastEvent.event : 'Initialized'}</p>
-            <p className="text-[11px] text-muted-foreground mt-1">{lastEvent ? lastEvent.timestamp : 'Just now'}</p>
+            <p className="text-2xl font-bold font-mono text-amber-500">{authFailures.length}</p>
+            <p className="text-[11px] text-muted-foreground mt-1">UC-13 / UC-26 security events</p>
           </div>
 
           <div className="bg-card border border-card-border rounded-xl p-5 shadow-xs">
@@ -273,125 +298,210 @@ export default function Audit() {
           </span>
         </section>
 
-        {/* Audit Log Table Section */}
+        {/* Navigation Tabs (System Audit vs Auth Failure Logs) */}
         <section className="bg-card border border-card-border rounded-xl p-6 shadow-xs space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-semibold">Chronological Audit Trail</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Filterable log of federated training, privacy enforcement, and aggregator activity</p>
-            </div>
+          <div className="flex items-center gap-3 border-b border-border pb-3">
+            <button
+              onClick={() => setActiveTab('audit')}
+              className={`px-4 py-2 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                activeTab === 'audit'
+                  ? 'bg-primary text-primary-foreground shadow-xs'
+                  : 'bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              System Audit Trail ({allEvents.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('auth_failures')}
+              className={`px-4 py-2 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'auth_failures'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Auth Failure Logs ({authFailures.length})
+            </button>
+          </div>
 
-            {/* Controls / Search / Filters */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="relative w-64">
-                <Search className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
-                <Input
-                  placeholder="Search audit logs..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  className="pl-9 text-xs h-9"
-                />
+          {activeTab === 'audit' ? (
+            <>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-semibold">Chronological Audit Trail</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Filterable log of federated training, privacy enforcement, and aggregator activity (UC-17, UC-25)</p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative w-64">
+                    <Search className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
+                    <Input
+                      placeholder="Search audit logs..."
+                      value={searchTerm}
+                      onChange={e => setSearchTerm(e.target.value)}
+                      className="pl-9 text-xs h-9"
+                    />
+                  </div>
+
+                  <select
+                    value={selectedCategory}
+                    onChange={e => setSelectedCategory(e.target.value)}
+                    className="h-9 px-3 py-1 bg-background border border-border rounded-md text-xs font-medium text-foreground cursor-pointer"
+                  >
+                    <option value="all">All Categories</option>
+                    <option value="training">Training</option>
+                    <option value="privacy">Privacy (DP/SecAgg)</option>
+                    <option value="security">Security</option>
+                    <option value="system">System</option>
+                  </select>
+
+                  <select
+                    value={selectedStatus}
+                    onChange={e => setSelectedStatus(e.target.value)}
+                    className="h-9 px-3 py-1 bg-background border border-border rounded-md text-xs font-medium text-foreground cursor-pointer"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="completed">Completed</option>
+                    <option value="verified_exact">Verified Exact</option>
+                    <option value="applied">Applied</option>
+                    <option value="active">Active</option>
+                    <option value="success">Success</option>
+                  </select>
+
+                  {(searchTerm || selectedCategory !== 'all' || selectedStatus !== 'all') && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSelectedCategory('all');
+                        setSelectedStatus('all');
+                      }}
+                      className="h-9 text-xs"
+                    >
+                      Clear Filters
+                    </Button>
+                  )}
+                </div>
               </div>
 
-              <select
-                value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
-                className="h-9 px-3 py-1 bg-background border border-border rounded-md text-xs font-medium text-foreground cursor-pointer"
-              >
-                <option value="all">All Categories</option>
-                <option value="training">Training</option>
-                <option value="privacy">Privacy (DP/SecAgg)</option>
-                <option value="security">Security</option>
-                <option value="system">System</option>
-              </select>
-
-              <select
-                value={selectedStatus}
-                onChange={e => setSelectedStatus(e.target.value)}
-                className="h-9 px-3 py-1 bg-background border border-border rounded-md text-xs font-medium text-foreground cursor-pointer"
-              >
-                <option value="all">All Statuses</option>
-                <option value="completed">Completed</option>
-                <option value="verified_exact">Verified Exact</option>
-                <option value="applied">Applied</option>
-                <option value="active">Active</option>
-                <option value="success">Success</option>
-              </select>
-
-              {(searchTerm || selectedCategory !== 'all' || selectedStatus !== 'all') && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedCategory('all');
-                    setSelectedStatus('all');
-                  }}
-                  className="h-9 text-xs"
-                >
-                  Clear Filters
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Audit Table */}
-          <div className="border border-border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="w-32">Timestamp</TableHead>
-                  <TableHead className="w-52">Event Name</TableHead>
-                  <TableHead className="w-44">Source / Bank</TableHead>
-                  <TableHead className="w-28">Round</TableHead>
-                  <TableHead className="w-36">Status</TableHead>
-                  <TableHead>Description & Details</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredEvents.length > 0 ? (
-                  filteredEvents.map(row => (
-                    <TableRow key={row.id}>
-                      <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-                        {row.timestamp}
-                      </TableCell>
-                      <TableCell className="font-semibold text-xs text-foreground">
-                        {row.event}
-                      </TableCell>
-                      <TableCell className="text-xs font-mono">
-                        {row.source}
-                      </TableCell>
-                      <TableCell className="text-xs font-mono font-medium">
-                        {row.round}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold border ${
-                            row.status === 'VERIFIED_EXACT' || row.status === 'COMPLETED' || row.status === 'SUCCESS' || row.status === 'APPLIED' || row.status === 'SYNCHRONIZED'
-                              ? 'bg-chart-2/10 text-chart-2 border-chart-2/20'
-                              : row.status === 'PROCESSING' || row.status === 'ACTIVE'
-                              ? 'bg-primary/10 text-primary border-primary/20'
-                              : 'bg-muted text-muted-foreground border-border'
-                          }`}
-                        >
-                          {row.status}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {row.description}
-                      </TableCell>
+              {/* Audit Table */}
+              <div className="border border-border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="w-32">Timestamp</TableHead>
+                      <TableHead className="w-52">Event Name</TableHead>
+                      <TableHead className="w-44">Source / Bank</TableHead>
+                      <TableHead className="w-28">Round</TableHead>
+                      <TableHead className="w-36">Status</TableHead>
+                      <TableHead>Description & Details</TableHead>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground text-xs">
-                      No matching audit records found for search criteria.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredEvents.length > 0 ? (
+                      filteredEvents.map(row => (
+                        <TableRow key={row.id}>
+                          <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                            {row.timestamp}
+                          </TableCell>
+                          <TableCell className="font-semibold text-xs text-foreground">
+                            {row.event}
+                          </TableCell>
+                          <TableCell className="text-xs font-mono">
+                            {row.source}
+                          </TableCell>
+                          <TableCell className="text-xs font-mono font-medium">
+                            {row.round}
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold border ${
+                                row.status === 'VERIFIED_EXACT' || row.status === 'COMPLETED' || row.status === 'SUCCESS' || row.status === 'APPLIED' || row.status === 'SYNCHRONIZED'
+                                  ? 'bg-chart-2/10 text-chart-2 border-chart-2/20'
+                                  : row.status === 'PROCESSING' || row.status === 'ACTIVE'
+                                  ? 'bg-primary/10 text-primary border-primary/20'
+                                  : 'bg-muted text-muted-foreground border-border'
+                              }`}
+                            >
+                              {row.status}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {row.description}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground text-xs">
+                          No matching audit records found for search criteria.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          ) : (
+            /* Auth Failure Logs View (UC-13, UC-26) */
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                  Authentication Failure Logs
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Traceability of invalid, missing, or revoked API key access attempts (UC-13, UC-26). Truncated key prefixes only — secret keys are never logged.
+                </p>
+              </div>
+
+              <div className="border border-border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="w-44">Timestamp</TableHead>
+                      <TableHead className="w-48">Attempted Key Prefix</TableHead>
+                      <TableHead className="w-48">Target Endpoint</TableHead>
+                      <TableHead className="w-36">Status</TableHead>
+                      <TableHead>Reason / Details</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {authFailures.length > 0 ? (
+                      authFailures.map((item, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                            {new Date(item.timestamp).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs font-bold text-amber-500">
+                            {item.attempted_key_prefix || 'MISSING'}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {item.endpoint}
+                          </TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                              401 UNAUTHORIZED
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {item.reason || 'Invalid, missing, or revoked X-API-Key header attempt.'}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground text-xs">
+                          No authentication failures recorded. All API requests authorized.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
         </section>
       </div>
     </div>
