@@ -91,7 +91,7 @@
   --elevate-2: rgba(0, 0, 0, 0.08);
 
   /* Deep navy base - banking trust */
-  --background: 216 28% 97%;
+  --background: 0 0% 100%;
   --foreground: 222 47% 11%;
   
   --border: 220 13% 88%;
@@ -370,16 +370,13 @@
   background:
     linear-gradient(
       180deg,
-      #2563eb 0%,
-      #2563eb 34%,
-      #5a95f5 55%,
-      #c4dcfe 78%,
-      #f8fafc 100%
-    ),
-    radial-gradient(
-      80% 50% at 50% 0%,
-      rgba(255, 255, 255, 0.25),
-      transparent 70%
+      #2962ff 0%,
+      #2962ff 30%,
+      #4d87ff 50%,
+      #b8d4ff 68%,
+      #deeaff 80%,
+      #f0f4ff 90%,
+      #ffffff 100%
     ) !important;
 }
 
