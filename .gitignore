@@ -1,15 +1,36 @@
 # See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # compiled output
-dist
-tmp
-out-tsc
+dist/
+tmp/
+out-tsc/
 *.tsbuildinfo
-.expo
-.expo-shared
+.expo/
+.expo-shared/
 
 # dependencies
-node_modules
+node_modules/
+.pnpm-store/
+
+# environment variables and secrets
+.env
+.env.*
+*.env
+!.env.example
+
+# runtime audit logs
+audit_log.jsonl
+auth_failures.jsonl
+
+# Python cache and environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+env/
+venv/
+ENV/
 
 # IDEs and editors
 /.idea
@@ -27,27 +48,22 @@ node_modules
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# misc
+# misc logs and caches
 /.sass-cache
 /connect.lock
 /coverage
 /libpeerconnection.log
-npm-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 testem.log
 /typings
+.cache/
+.local/
+.replit*
+replit.md
 
 # System Files
 .DS_Store
 Thumbs.db
-
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
-
-# Local caches
-.cache/
-.local/
-.venv/
-.replit*
-replit.md
-
