@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd artifacts/fraud-detection-dashboard && npm install && npm run build",
+  "buildCommand": "pnpm --filter @workspace/fraud-detection-dashboard run build",
   "outputDirectory": "artifacts/fraud-detection-dashboard/dist/public",
   "framework": "vite",
   "rewrites": [
