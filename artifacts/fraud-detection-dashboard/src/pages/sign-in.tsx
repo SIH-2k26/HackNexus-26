@@ -21,7 +21,7 @@ export default function SignIn() {
 
     const allowedOperatorEmails = (
       import.meta.env.VITE_OPERATOR_EMAIL ||
-      'operator@vaultic.io,sarthakpatil18@gmail.com,sarthak@vaultic.io'
+      'sih33.2k26@gmail.com,operator@vaultic.io,sarthakpatil18@gmail.com,sarthak@vaultic.io'
     )
       .split(',')
       .map((e: string) => e.trim().toLowerCase());
@@ -29,13 +29,16 @@ export default function SignIn() {
     const normalizedEmail = email.trim().toLowerCase();
 
     // Check if the user email is registered/authorized
-    const isAuthorizedOperator = allowedOperatorEmails.includes(normalizedEmail);
+    const isAuthorizedOperator = allowedOperatorEmails.includes(normalizedEmail) || normalizedEmail.endsWith('@vaultic.io') || normalizedEmail.includes('operator');
 
-    if (!isAuthorizedOperator && !normalizedEmail.endsWith('@vaultic.io') && !normalizedEmail.includes('admin') && !normalizedEmail.includes('operator')) {
+    if (!isAuthorizedOperator) {
       setErrorMessage('User not registered. This email is not authorized for Vaultic Central Operator access.');
       setLoading(false);
       return;
     }
+
+    // If operator key is omitted or user is authorized operator email, default to demo-key-12345
+    const resolvedApiKey = apiKey.trim() || (isAuthorizedOperator ? 'demo-key-12345' : '');
 
     try {
       // 1. Supabase User Authentication & Email Storage in Supabase
@@ -64,7 +67,7 @@ export default function SignIn() {
       const res = await fetch('http://127.0.0.1:8000/auth/verify-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ api_key: apiKey }),
+        body: JSON.stringify({ api_key: resolvedApiKey }),
       });
 
       if (!res.ok) {
@@ -83,7 +86,7 @@ export default function SignIn() {
         bank_name: keyData.bank_name,
         bank_id: keyData.bank_id,
         tier: keyData.tier,
-        apiKey: apiKey,
+        apiKey: resolvedApiKey,
         userEmail: email || 'authenticated_user',
         loginTime: new Date().toISOString(),
       };
