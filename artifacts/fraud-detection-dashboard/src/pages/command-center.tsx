@@ -1,5 +1,5 @@
-import { Activity, Play, SkipForward, RotateCcw, CheckCircle2 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Activity, Play, SkipForward, RotateCcw, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Link } from 'wouter';
 import { useFederatedLearningContext } from '@/lib/federated-learning-provider';
 import { MetricCard } from '@/components/metric-card';
 import { BankStatusCard } from '@/components/bank-status-card';
@@ -10,13 +10,6 @@ import { cn } from '@/lib/utils';
 export default function CommandCenter() {
   const { state, runOneRound, runAllRounds, resetSystem, isRunning } = useFederatedLearningContext();
   const { globalModel, banks, roundHistory, status } = state;
-
-  const chartData = roundHistory.map(h => ({
-    round: h.round,
-    Recall: (h.globalRecall * 100).toFixed(1),
-    F1: (h.globalF1 * 100).toFixed(1),
-    Accuracy: (h.globalAccuracy * 100).toFixed(1),
-  }));
 
   const canRunNext = globalModel.round < 10 && status !== 'training';
   const isComplete = status === 'complete' || globalModel.round >= 10;
@@ -82,10 +75,13 @@ export default function CommandCenter() {
               <p className="text-[10px] text-muted-foreground">Gaussian Noise (ε=1.0)</p>
             </div>
 
-            <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
+            <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50 group relative">
               <div className="text-xl mb-1">🔐</div>
               <p className="text-xs font-semibold">SecAgg Mask</p>
-              <p className="text-[10px] text-muted-foreground">Zero-Sum Cancellation</p>
+              <p className="text-[10px] text-muted-foreground">δ &lt; 10⁻⁹ Exact</p>
+              <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5">
+                Algorithmic mask-cancellation verified locally. Production deployment would add multi-party cryptographic key exchange.
+              </p>
             </div>
 
             <div className="bg-background/80 border border-border/80 rounded-lg p-3 text-center transition-all hover:border-primary/50">
@@ -108,28 +104,36 @@ export default function CommandCenter() {
           </div>
         </section>
 
-        {/* Global model status */}
+        {/* Global model glance status */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Global Model Status</h2>
-            <div className="flex items-center gap-2">
-              <div
-                className={cn(
-                  'w-2 h-2 rounded-full',
-                  status === 'idle' && 'bg-muted-foreground',
-                  status === 'training' && 'bg-chart-3 animate-pulse',
-                  status === 'complete' && 'bg-chart-2'
-                )}
-              />
-              <span className="text-sm font-medium font-mono">
-                {status === 'idle' && 'Ready'}
-                {status === 'training' && 'Training in progress'}
-                {status === 'complete' && 'Training complete'}
-              </span>
+            <div>
+              <h2 className="text-lg font-semibold">Global Model Glance Summary</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">High-level model telemetry — see Global Model page for full performance matrix</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link href="/global-model" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">
+                View full model metrics <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <div className="flex items-center gap-2 border-l border-border pl-4">
+                <div
+                  className={cn(
+                    'w-2 h-2 rounded-full',
+                    status === 'idle' && 'bg-muted-foreground',
+                    status === 'training' && 'bg-chart-3 animate-pulse',
+                    status === 'complete' && 'bg-chart-2'
+                  )}
+                />
+                <span className="text-sm font-medium font-mono">
+                  {status === 'idle' && 'Ready'}
+                  {status === 'training' && 'Training in progress'}
+                  {status === 'complete' && 'Training complete'}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <MetricCard
               label="Current Round"
               value={`${globalModel.round}/10`}
@@ -138,29 +142,18 @@ export default function CommandCenter() {
               valueClassName="text-primary"
             />
             <MetricCard
-              label="Recall (Fraud Detection)"
-              value={`${(globalModel.recall * 100).toFixed(1)}%`}
-              subtitle="Actual fraud caught"
-              trend={globalModel.round > 0 ? 'up' : 'neutral'}
-              valueClassName={globalModel.recall > 0.8 ? 'text-chart-2' : ''}
-            />
-            <MetricCard
-              label="F1 Score"
-              value={`${(globalModel.f1 * 100).toFixed(1)}%`}
-              subtitle="Precision-recall balance"
-              trend={globalModel.round > 0 ? 'up' : 'neutral'}
-            />
-            <MetricCard
               label="Accuracy"
               value={`${(globalModel.accuracy * 100).toFixed(1)}%`}
-              subtitle="Overall correctness"
+              subtitle="Overall true classification"
               trend={globalModel.round > 0 ? 'up' : 'neutral'}
+              valueClassName="text-foreground"
             />
             <MetricCard
-              label="Precision"
-              value={`${(globalModel.precision * 100).toFixed(1)}%`}
-              subtitle="True fraud / flagged"
+              label="Recall (Fraud Detection Rate)"
+              value={`${(globalModel.recall * 100).toFixed(1)}%`}
+              subtitle="Actual fraud caught across network"
               trend={globalModel.round > 0 ? 'up' : 'neutral'}
+              valueClassName={globalModel.recall > 0.8 ? 'text-chart-2' : ''}
             />
           </div>
         </section>
@@ -216,59 +209,6 @@ export default function CommandCenter() {
             ))}
           </div>
         </section>
-
-        {/* Performance chart */}
-        {roundHistory.length > 0 && (
-          <section className="bg-card border border-card-border rounded-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">Model Performance Over Rounds</h2>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis
-                    dataKey="round"
-                    label={{ value: 'Training Round', position: 'insideBottom', offset: -5 }}
-                    stroke="hsl(var(--muted-foreground))"
-                  />
-                  <YAxis
-                    label={{ value: 'Performance (%)', angle: -90, position: 'insideLeft' }}
-                    stroke="hsl(var(--muted-foreground))"
-                    domain={[0, 100]}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--popover))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px',
-                    }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="Recall"
-                    stroke="hsl(var(--chart-2))"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="F1"
-                    stroke="hsl(var(--chart-1))"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Accuracy"
-                    stroke="hsl(var(--chart-3))"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </section>
-        )}
 
         {/* Privacy notice */}
         <section className="bg-accent/10 border border-accent/20 rounded-lg p-6">

@@ -102,6 +102,9 @@ export default function Settings() {
               </div>
               <p className="text-lg font-semibold text-chart-2">Verified</p>
               <p className="text-[11px] text-muted-foreground mt-0.5 font-mono">δ &lt; 10⁻⁹ Exact</p>
+              <p className="text-[9px] text-muted-foreground/80 leading-tight mt-0.5">
+                Algorithmic mask-cancellation verified locally. Production deployment would add multi-party cryptographic key exchange.
+              </p>
             </div>
 
             <div className="bg-background/80 border border-border/80 rounded-lg p-4 transition-all hover:border-border">
@@ -149,10 +152,10 @@ export default function Settings() {
           <div className="flex items-center justify-between py-4 border-b border-border">
             <div className="space-y-1">
               <Label htmlFor="mode-switch" className="text-base font-medium">
-                Simulation Mode
+                Offline Demo Mode
               </Label>
               <p className="text-sm text-muted-foreground">
-                Run federated learning simulation entirely in-browser (no backend required)
+                Run the full federated pipeline in-browser without a live backend connection — useful for demos without network access.
               </p>
             </div>
             <Switch

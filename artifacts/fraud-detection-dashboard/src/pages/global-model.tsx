@@ -127,7 +127,9 @@ export default function GlobalModel() {
               <p className="text-3xl font-bold font-mono text-foreground">
                 {(globalModel.precision * 100).toFixed(1)}%
               </p>
-              <p className="text-[11px] text-muted-foreground mt-1">Positive predictive value</p>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Positive predictive value (~{((1 - globalModel.precision) * 100).toFixed(0)}% of flagged transactions require manual review)
+              </p>
             </div>
 
             <div className="bg-background border border-border rounded-xl p-5 shadow-xs">
