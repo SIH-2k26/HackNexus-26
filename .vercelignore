@@ -1,0 +1,16 @@
+# Ignore everything Vercel doesn't need for the static frontend
+api/
+core/
+data/
+deploy/
+docs/
+lib/
+attached_assets/
+vaultic-frontend/
+.venv/
+*.py
+*.csv
+*.jsonl
+*.pyc
+__pycache__/
+.pnpm-store/
